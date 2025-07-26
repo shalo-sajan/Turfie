@@ -1,0 +1,334 @@
+{# turfs/templates/turfs/turf_list.html #}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ heading }} - Turf Booking</title>
+    <link rel="stylesheet" href="{% static 'users/css/dashboard.css' %}"> {# Reusing dashboard CSS for general layout #}
+    <style>
+        /* Specific styles for turf list */
+        .turf-list-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .turf-list-container h2 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .actions-bar {
+            display: flex;
+            justify-content: space-between; /* Distribute items */
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 15px; /* Space between items when wrapped */
+        }
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex-grow: 1; /* Allow search bar to take available space */
+            max-width: 400px; /* Limit search bar width */
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        .search-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+        .add-turf-button {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .add-turf-button:hover {
+            background-color: #218838;
+        }
+        .turf-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .turf-card {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .turf-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .turf-card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #e0e0e0; /* Placeholder background */
+            display: block; /* Remove extra space below image */
+        }
+        .turf-card-content {
+            padding: 20px;
+            flex-grow: 1; /* Allow content to grow and push buttons to bottom */
+            display: flex;
+            flex-direction: column;
+        }
+        .turf-card-content h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #007bff;
+            font-size: 1.5em;
+        }
+        .turf-card-content p {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            color: #555;
+        }
+        .turf-card-content .price {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 1.1em;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .turf-card-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            margin-top: auto; /* Push actions to the bottom */
+            gap: 10px; /* Space between buttons */
+        }
+        .turf-card-actions a {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            font-size: 0.9em;
+            flex-grow: 1; /* Allow buttons to grow */
+            text-align: center;
+        }
+        .turf-card-actions .edit-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .turf-card-actions .edit-button:hover {
+            background-color: #0056b3;
+        }
+        .turf-card-actions .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+        .turf-card-actions .delete-button:hover {
+            background-color: #c82333;
+        }
+        .turf-card-actions .book-button { /* New style for book button */
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+        .turf-card-actions .book-button:hover {
+            background-color: #218838;
+        }
+        .no-turfs-message {
+            text-align: center;
+            font-size: 1.2em;
+            color: #666;
+            padding: 50px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        /* Messages styling - reuse from auth.css/dashboard.css */
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .messages li {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 0.95em;
+            display: inline-block; /* For better display of messages */
+        }
+
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .messages .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .footer-actions {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .turf-list-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-form {
+                width: 100%;
+                max-width: none;
+            }
+            .search-button {
+                min-width: unset;
+                flex-grow: 0;
+            }
+            .add-turf-button {
+                width: 100%;
+                text-align: center;
+            }
+            .turf-card-grid {
+                grid-template-columns: 1fr; /* Stack cards on small screens */
+            }
+            .turf-card-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .turf-card-actions a {
+                width: calc(100% - 30px); /* Adjust for padding */
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="turf-list-container">
+        <h2>{{ heading }}</h2>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="actions-bar">
+            {% if user.is_player or user.is_admin %}
+                <form method="get" class="search-form" action="{% url 'turfs:turf_list' %}">
+                    <input type="text" name="q" placeholder="Search by name or location..." class="search-input" value="{{ search_query|default:'' }}">
+                    <button type="submit" class="search-button">Search</button>
+                </form>
+            {% endif %}
+
+            {% if user.is_turf_owner %}
+                <a href="{% url 'turfs:turf_create' %}" class="add-turf-button">Add New Turf</a>
+            {% endif %}
+        </div>
+
+
+        {% if turfs %}
+            <div class="turf-card-grid">
+                {% for turf in turfs %}
+                    <div class="turf-card">
+                        {# Display turf image, or a placeholder if none #}
+                        {% if turf.image %}
+                            <img src="{{ turf.image.url }}" alt="{{ turf.name }}" class="turf-card-image">
+                        {% else %}
+                            {# Placeholder image: https://placehold.co/{width}x{height}/{background color in hex}/{text color in hex}?text={text} #}
+                            <img src="https://placehold.co/400x180/cccccc/333333?text=No+Image" alt="No image available" class="turf-card-image">
+                        {% endif %}
+                        <div class="turf-card-content">
+                            <h3>{{ turf.name }}</h3>
+                            <p><strong>Location:</strong> {{ turf.location }}</p>
+                            <p><strong>Description:</strong> {{ turf.description|default:"No description provided."|truncatechars:100 }}</p>
+                            <p class="price">Price: ₹{{ turf.price_per_hour|floatformat:2 }} / hour</p>
+                            <p>
+                                <span class="status-badge {% if turf.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                    {% if turf.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </p>
+                            <div class="turf-card-actions">
+                                {% if user.is_turf_owner %}
+                                    <a href="{% url 'turfs:turf_update' turf.pk %}" class="edit-button">Edit</a>
+                                    <a href="{% url 'turfs:turf_delete' turf.pk %}" class="delete-button">Delete</a>
+                                {% elif user.is_player %} {# ADDED FOR PLAYERS #}
+                                    <a href="{% url 'bookings:create_booking' turf.pk %}" class="book-button">Book Now</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-turfs-message">No turfs found. {% if user.is_turf_owner %}Click "Add New Turf" to list your first turf!{% endif %}</p>
+        {% endif %}
+
+        <div class="footer-actions">
+            <a href="{% if user.is_turf_owner %}{% url 'users:turf_owner_dashboard' %}{% else %}{% url 'users:player_dashboard' %}{% endif %}" class="dashboard-button">Back to Dashboard</a>
+            <a href="{% url 'users:logout' %}" class="dashboard-button logout-button">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

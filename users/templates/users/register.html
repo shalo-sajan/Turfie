@@ -1,0 +1,42 @@
+{# users/templates/users/register.html #}
+{% load static %} {# Load static files for CSS #}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Turf Booking</title>
+    <link rel="stylesheet" href="{% static 'users/css/auth.css' %}"> {# Link to shared auth CSS #}
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Register</h2>
+        {# Display Django messages (success, error, info) #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %} {# IMPORTANT: CSRF token for security #}
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="auth-button">Register</button>
+        </form>
+        <p class="auth-link">Already have an account? <a href="{% url 'users:login' %}">Login here</a></p>
+    </div>
+</body>
+</html>
