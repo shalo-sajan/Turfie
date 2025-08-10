@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turfie - Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853;
+            --primary-dark: #009624;
+            --primary-light: #5EFC82;
+            --secondary: #FF6D00;
+            --accent: #FFAB00;
+            --dark: #212121;
+            --light: #FAFAFA;
+            --gray: #757575;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.19);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(94, 252, 130, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 109, 0, 0.05) 0%, transparent 20%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+         
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .back-btn {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            color: var(--primary-dark);
+            transform: translateX(-3px);
+        }
+        
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .register-header h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 800;
+        }
+        
+        .register-header p {
+            color: var(--gray);
+            font-size: 16px;
+        }
+        
+        /* Profile Picture Upload */
+        .profile-picture-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .profile-picture-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 4px solid var(--white);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .profile-picture-wrapper:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .profile-picture {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .profile-placeholder {
+            font-size: 40px;
+            color: var(--gray);
+        }
+
+        .profile-upload-btn {
+            margin-top: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-upload-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        #profile-picture-input {
+            display: none;
+        }
+        
+        /* Toggle Switch */
+        .account-type-toggle {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 30px;
+            padding: 5px;
+            margin: 25px 0;
+            position: relative;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+        
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            z-index: 1;
+            cursor: pointer;
+            transition: color 0.3s;
+            font-weight: 600;
+        }
+        
+        .toggle-option.active {
+            color: white;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: calc(50% - 5px);
+            height: calc(100% - 10px);
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 25px;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        .form-group:nth-child(2) { animation-delay: 0.5s; }
+        .form-group:nth-child(3) { animation-delay: 0.6s; }
+        .form-group:nth-child(4) { animation-delay: 0.7s; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.2);
+        }
+        
+        .password-strength {
+            height: 6px;
+            background: #eee;
+            margin-top: 8px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            background: red;
+            transition: width 0.3s, background 0.3s;
+            border-radius: 3px;
+        }
+        
+        .register-btn {
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+            animation: fadeIn 0.8s ease-out 0.8s both;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
+        }
+
+        .register-btn:active {
+            transform: translateY(0);
+        }
+        
+        .register-footer {
+            text-align: center;
+            margin-top: 25px;
+            animation: fadeIn 0.8s ease-out 0.9s both;
+        }
+        
+        .register-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .register-footer a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        /* Turf Owner Specific Fields */
+        .turf-owner-fields {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease, padding 0.3s ease;
+        }
+        
+        .turf-owner-fields.show {
+            max-height: 500px;
+            opacity: 1;
+            padding-top: 15px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out 1s both;
+        }
+        
+        .copyright {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .register-container {
+                padding: 30px 20px;
+            }
+
+            .register-header h1 {
+                font-size: 28px;
+            }
+
+            .profile-picture-wrapper {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <a href="{% url 'users:landing' %}" class="logo">
+                <i class="fas fa-futbol"></i>
+                Turfie
+            </a>
+            <a href="{% url 'users:landing' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="register-container">
+                <div class="register-header">
+                    <h1>Join Turfie</h1>
+                    <p>Create your account to book or manage turfs</p>
+                </div>
+                
+                <!-- Profile Picture Upload -->
+                <div class="profile-picture-container">
+                    <div class="profile-picture-wrapper" id="profile-picture-wrapper">
+                        <img src="" alt="Profile Picture" class="profile-picture" id="profile-picture">
+                        <div class="profile-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    <button class="profile-upload-btn" id="upload-btn">
+                        <i class="fas fa-camera"></i>
+                        Upload Photo
+                    </button>
+                    
+                </div>
+                
+                <!-- Account Type Toggle -->
+                <div class="account-type-toggle">
+                    <div class="toggle-option active" onclick="switchAccountType('player')">Player</div>
+                    <div class="toggle-option" onclick="switchAccountType('turf-owner')">Turf Owner</div>
+                    <div class="toggle-slider"></div>
+                </div>
+                
+                <form action="{% url 'users:register' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Hidden input to store selected account type -->
+                    <input type="hidden" id="account-type-input" name="account_type" value="player">
+                    <input type="file" id="profile-picture-input" name="profile_picture" accept="image/*" style="display: none;">
+                    
+                    <!-- Display Django messages -->
+                    {% if messages %}
+                        <ul class="messages" style="list-style: none; padding: 0; margin-bottom: 15px;">
+                            {% for message in messages %}
+                                <li {% if message.tags %} class="{{ message.tags }}"{% endif %} style="color: {% if message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% else %}black{% endif %}; font-weight: bold; padding: 10px; background: {% if message.tags == 'error' %}#FFEBEE{% elif message.tags == 'success' %}#E8F5E9{% else %}#f5f5f5{% endif %}; border-radius: 4px; margin-bottom: 5px;">
+                                    {{ message }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    
+                    <!-- Common Fields -->
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="Choose a username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Create Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Create a password" required oninput="checkPasswordStrength(this.value)">
+                        <div class="password-strength">
+                            <div class="strength-meter" id="strength-meter"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Re-enter Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password" class="form-control" placeholder="Re-enter your password" required>
+                    </div>
+                    
+                    <!-- Turf Owner Specific Fields (Hidden by default) -->
+                    <div class="turf-owner-fields" id="turf-owner-fields">
+                        <div class="form-group">
+                            <label for="business-name">Business Name</label>
+                            <input type="text" id="business-name" name="business-name" class="form-control" placeholder="Your turf business name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone_number" class="form-control" placeholder="Business contact number">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="register-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                    
+                    <div class="register-footer">
+                        <p>Already have an account? <a href="{% url 'users:login' %}">Login here</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="copyright">© 2025 Turfie – Book Online. Play More.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle between Player and Turf Owner
+        function switchAccountType(type) {
+            const playerOption = document.querySelector('.toggle-option:nth-child(1)');
+            const ownerOption = document.querySelector('.toggle-option:nth-child(2)');
+            const slider = document.querySelector('.toggle-slider');
+            const ownerFields = document.getElementById('turf-owner-fields');
+            const accountTypeInput = document.getElementById('account-type-input');
+
+            if (type === 'player') {
+                playerOption.classList.add('active');
+                ownerOption.classList.remove('active');
+                slider.style.transform = 'translateX(0)';
+                ownerFields.classList.remove('show');
+                accountTypeInput.value = 'player';
+                document.getElementById('business-name').removeAttribute('required');
+                document.getElementById('phone').removeAttribute('required');
+            } else {
+                playerOption.classList.remove('active');
+                ownerOption.classList.add('active');
+                slider.style.transform = 'translateX(100%)';
+                ownerFields.classList.add('show');
+                accountTypeInput.value = 'turf_owner';
+                document.getElementById('business-name').setAttribute('required', 'required');
+                document.getElementById('phone').setAttribute('required', 'required');
+            }
+        }
+        
+        // Password strength indicator
+        function checkPasswordStrength(password) {
+            const strengthMeter = document.getElementById('strength-meter');
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+            if (password.match(/[a-z]/)) strength += 1;
+            if (password.match(/[A-Z]/)) strength += 1;
+            if (password.match(/[0-9]/)) strength += 1;
+            if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
+            
+            const width = (strength / 6) * 100;
+            strengthMeter.style.width = width + '%';
+            
+            if (width < 40) {
+                strengthMeter.style.background = '#FF5252';
+            } else if (width < 70) {
+                strengthMeter.style.background = '#FFAB00';
+            } else {
+                strengthMeter.style.background = '#00C853';
+            }
+        }
+
+        // Profile picture upload
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileInput = document.getElementById('profile-picture-input');
+            const profileWrapper = document.getElementById('profile-picture-wrapper');
+            const profileImage = document.getElementById('profile-picture');
+            const uploadBtn = document.getElementById('upload-btn');
+            const placeholder = document.querySelector('.profile-placeholder');
+
+            // Initialize account type
+            const accountTypeInput = document.getElementById('account-type-input');
+            const initialType = accountTypeInput.value;
+            switchAccountType(initialType);
+
+            // Handle profile picture upload
+            profileWrapper.addEventListener('click', () => profileInput.click());
+            uploadBtn.addEventListener('click', () => profileInput.click());
+
+            profileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        profileImage.src = event.target.result;
+                        profileImage.style.display = 'block';
+                        placeholder.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

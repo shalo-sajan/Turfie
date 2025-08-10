@@ -1,0 +1,132 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turfie - Player Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'Users/styles.css' %}">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo">
+                    <i class="fas fa-futbol"></i>
+                    Turfie
+                </a>
+                <div class="user-menu">
+                    <button class="notification-btn" aria-label="View notifications">
+                        <i class="fas fa-bell"></i>
+                        {% if notification_count > 0 %}
+                            <span class="notification-badge">{{ notification_count }}</span>
+                        {% endif %}
+                    </button>
+                    <div class="user-profile">
+                        <img src="{{ user.profile_picture.url|default:'/static/images/default-avatar.png' }}" alt="{{ user.username }}'s avatar" class="user-avatar">
+                        <span>{{ user.username }}</span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container dashboard">
+        <aside class="sidebar">
+            <nav>
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
+                    <li><a href="#"><i class="fas fa-map-marked-alt"></i> Find Turfs</a></li>
+                    <li><a href="#"><i class="fas fa-trophy"></i> Rewards</a></li>
+                    <li><a href="#"><i class="fas fa-wallet"></i> Payments</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="main-content">
+            <section class="welcome-banner" aria-labelledby="welcome-heading">
+                <div class="welcome-text">
+                    <h1 id="welcome-heading">Welcome back, {{ user.first_name|default:user.username }}!</h1>
+                    <p>Ready for your next game? Book a turf now.</p>
+                </div>
+                <div class="reward-points">
+                    <i class="fas fa-coins"></i>
+                    {{ user.reward_points|default:0 }} Points
+                </div>
+            </section>
+
+            <section aria-labelledby="bookings-heading">
+                <div class="section-title">
+                    <h2 id="bookings-heading">Upcoming Bookings</h2>
+                    <a href="#">View All</a>
+                </div>
+                <div class="bookings-grid">
+                    {% for booking in upcoming_bookings %}
+                    <div class="booking-card" data-booking-id="{{ booking.id }}">
+                        <div class="booking-header">
+                            <span class="booking-id">#BK-{{ booking.id }}</span>
+                            <span class="booking-status status-{{ booking.status|lower }}">{{ booking.get_status_display }}</span>
+                        </div>
+                        <div class="booking-details">
+                            <h3>{{ booking.turf.name }}</h3>
+                            <p>{{ booking.turf.description|truncatewords:7 }}</p>
+                            <div class="booking-time">
+                                <i class="fas fa-calendar-day"></i>
+                                {{ booking.start_time|date:"D, M d, P" }} - {{ booking.end_time|date:"P" }}
+                            </div>
+                        </div>
+                        <div class="booking-actions">
+                            <a href="{% url 'booking_details' booking.id %}" class="btn btn-primary">View Details</a>
+                            <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>You have no upcoming bookings. <a href="#">Time to play!</a></p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section aria-labelledby="turfs-heading">
+                <div class="section-title">
+                    <h2 id="turfs-heading">Recommended Turfs Near You</h2>
+                    <a href="#">Explore More</a>
+                </div>
+                <div class="turfs-grid">
+                    {% for turf in recommended_turfs %}
+                    <div class="turf-card" data-turf-id="{{ turf.id }}">
+                        <img src="{{ turf.main_image.url }}" alt="{{ turf.name }}" class="turf-image">
+                        <div class="turf-content">
+                            <h3>{{ turf.name }}</h3>
+                            <div class="turf-rating">
+                                <i class="fas fa-star"></i>
+                                <span>{{ turf.rating }} ({{ turf.review_count }} reviews)</span>
+                            </div>
+                            <div class="turf-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ turf.location_name }}</span>
+                            </div>
+                            <div class="turf-price">₹{{ turf.price_per_hour }}/hour</div>
+                            <div class="turf-actions">
+                                <button class="btn btn-outline btn-favorite" aria-label="Add to favorites">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <a href="{% url 'turf_details' turf.id %}" class="btn btn-primary">Book Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{% static 'Users/app.js' %}"></script>
+
+</body>
+</html>

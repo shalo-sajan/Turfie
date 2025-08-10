@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turfie - Owner Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853;
+            --primary-dark: #009624;
+            --primary-light: #5EFC82;
+            --secondary: #FF6D00;
+            --dark: #212121;
+            --light: #FAFAFA;
+            --gray: #757575;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.19);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            padding: 20px 0;
+            transition: var(--transition);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .user-profile:hover {
+            background: rgba(0,200,83,0.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 2px solid var(--primary-light);
+        }
+
+        .user-info h4 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(0,200,83,0.1);
+            color: var(--primary-dark);
+        }
+
+        .nav-link.active {
+            font-weight: 600;
+        }
+
+        .nav-link.active i {
+            color: var(--primary);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .page-title p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(0,200,83,0.1);
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--white);
+            border: none;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--secondary);
+            color: var(--white);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .stat-icon.blue {
+            background: rgba(33,150,243,0.1);
+            color: #2196F3;
+        }
+
+        .stat-icon.green {
+            background: rgba(76,175,80,0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.orange {
+            background: rgba(255,152,0,0.1);
+            color: var(--secondary);
+        }
+
+        .stat-icon.purple {
+            background: rgba(156,39,176,0.1);
+            color: #9C27B0;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-change.positive {
+            color: var(--primary);
+        }
+
+        .stat-change.negative {
+            color: #F44336;
+        }
+
+        /* Recent Bookings */
+        .section-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .booking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .booking-table th {
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 14px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .booking-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            vertical-align: middle;
+        }
+
+        .booking-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .booking-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .booking-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-confirmed {
+            background: rgba(76,175,80,0.1);
+            color: var(--primary);
+        }
+
+        .status-pending {
+            background: rgba(255,152,0,0.1);
+            color: var(--secondary);
+        }
+
+        .status-cancelled {
+            background: rgba(244,67,54,0.1);
+            color: #F44336;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Turf Availability */
+        .availability-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 10px;
+            color: var(--gray);
+        }
+
+        .calendar-day {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 100px;
+            transition: var(--transition);
+        }
+
+        .calendar-day:hover {
+            border-color: var(--primary);
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .day-events {
+            font-size: 12px;
+        }
+
+        .event-item {
+            background: rgba(0,200,83,0.1);
+            color: var(--primary-dark);
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .time-slot {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .time-slot.booked {
+            background: rgba(244,67,54,0.1);
+            color: #F44336;
+            border-color: rgba(244,67,54,0.2);
+        }
+
+        .time-slot.available {
+            background: rgba(76,175,80,0.1);
+            color: var(--primary-dark);
+            border-color: rgba(76,175,80,0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 1000;
+                height: 100%;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .booking-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .availability-calendar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .availability-calendar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo">
+                <i class="fas fa-futbol"></i>
+                Turfie
+            </a>
+            <div class="user-profile">
+                    {% if user.profile_picture %}
+                       <img src="{{ user.profile_picture.url }}" alt="User" class="user-avatar">
+                    {% else %}
+                            <img src="/path/to/default/avatar.png" alt="User" class="user-avatar">
+                    {% endif %}
+                <div class="user-info">
+                    <h4>{{ user.username }}</h4>
+                    <p>{{user.business_name}}</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    Bookings
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'turfs:turf_list' %}" class="nav-link">
+                    <i class="fas fa-map-marked-alt"></i>
+                    My Turfs
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    Payments
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-question-circle"></i>
+                    Support
+                </a>
+            </div>
+            <div class="nav-item" style="margin-top: 30px;">
+                <a href="{% url 'users:logout' %}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="header">
+            <div class="page-title">
+                <h1>Owner Dashboard</h1>
+                <p>Welcome back, {{ user.first_name|default:user.username }}! Here's what's happening with your turfs.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline">
+                    <i class="fas fa-plus"></i>
+                    Add New Turf
+                </button>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Total Bookings</span>
+                    <div class="stat-icon blue">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ stats.total_bookings }}</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    12% from last month
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Revenue</span>
+                    <div class="stat-icon green">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-value">₹{{ stats.total_revenue|floatformat:0 }}</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    18% from last month
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Occupancy Rate</span>
+                    <div class="stat-icon orange">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                </div>
+                <div class="stat-value">68%</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    5% from last month
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Customer Rating</span>
+                    <div class="stat-icon purple">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ stats.avg_rating|floatformat:1 }}</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    0.2 from last month
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Recent Bookings</h2>
+                <a href="#" class="view-all">
+                    View All
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Turf</th>
+                            <th>Date & Time</th>
+                            <th>Duration</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                    <tr>
+                        <td>
+                            <div class="booking-user">
+                                {% if booking.user.profile_picture %}
+                                    <img src="{{ booking.user.profile_picture.url }}" alt="User" class="booking-user-avatar">
+                                {% else %}
+                                    <img src="/path/to/default/avatar.png" alt="User" class="booking-user-avatar">
+                                {% endif %}
+                                <div>
+                                    <div>{{ booking.user.username }}</div>
+                                    <div style="font-size: 12px; color: var(--gray);">#BK-{{ booking.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ booking.turf.name }}</td>
+                        <td>{{ booking.start_time|date:"d M, P" }}</td>
+                        <td>{{ booking.duration_hours }} hours</td>
+                        <td>₹{{ booking.amount|floatformat:0 }}</td>
+                        <td>
+                            <span class="booking-status status-{{ booking.status|lower }}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'booking_details' booking.id %}" class="action-btn primary">View</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px;">
+                            You have no recent bookings.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Turf Availability -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Turf Availability</h2>
+                <div>
+                    <button class="btn btn-outline" style="padding: 8px 12px;">
+                        <i class="fas fa-calendar-alt"></i>
+                        This Week
+                    </button>
+                </div>
+            </div>
+            
+            <div class="availability-calendar">
+                <div class="calendar-header">Sun</div>
+                <div class="calendar-header">Mon</div>
+                <div class="calendar-header">Tue</div>
+                <div class="calendar-header">Wed</div>
+                <div class="calendar-header">Thu</div>
+                <div class="calendar-header">Fri</div>
+                <div class="calendar-header">Sat</div>
+                
+                <div class="calendar-day">
+                    <div class="day-number">11</div>
+                    <div class="day-events">
+                        <div class="event-item">4 bookings</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">12</div>
+                    <div class="day-events">
+                        <div class="event-item">6 bookings</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">13</div>
+                    <div class="day-events">
+                        <div class="event-item">3 bookings</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">14</div>
+                    <div class="day-events">
+                        <div class="event-item">5 bookings</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">15</div>
+                    <div class="day-events">
+                        <div class="event-item">2 bookings</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">16</div>
+                    <div class="day-events">
+                        <div class="event-item">7 bookings</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">17</div>
+                    <div class="day-events">
+                        <div class="event-item">1 booking</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="margin: 20px 0 15px; font-size: 18px;">Today's Time Slots - Elite Football Arena</h3>
+            <div class="time-slots">
+                <div class="time-slot booked">
+                    <div>7:00 AM</div>
+                    <div style="font-size: 11px;">Booked</div>
+                </div>
+                <div class="time-slot booked">
+                    <div>9:00 AM</div>
+                    <div style="font-size: 11px;">Booked</div>
+                </div>
+                <div class="time-slot available">
+                    <div>11:00 AM</div>
+                    <div style="font-size: 11px;">Available</div>
+                </div>
+                <div class="time-slot available">
+                    <div>1:00 PM</div>
+                    <div style="font-size: 11px;">Available</div>
+                </div>
+                <div class="time-slot booked">
+                    <div>4:00 PM</div>
+                    <div style="font-size: 11px;">Booked</div>
+                </div>
+                <div class="time-slot available">
+                    <div>6:00 PM</div>
+                    <div style="font-size: 11px;">Available</div>
+                </div>
+                <div class="time-slot available">
+                    <div>8:00 PM</div>
+                    <div style="font-size: 11px;">Available</div>
+                </div>
+                <div class="time-slot available">
+                    <div>10:00 PM</div>
+                    <div style="font-size: 11px;">Available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle time slot selection
+            const timeSlots = document.querySelectorAll('.time-slot.available');
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    if (this.classList.contains('selected')) {
+                        this.style.backgroundColor = 'rgba(33,150,243,0.1)';
+                        this.style.borderColor = 'rgba(33,150,243,0.3)';
+                        this.style.color = '#2196F3';
+                    } else {
+                        this.style.backgroundColor = 'rgba(76,175,80,0.1)';
+                        this.style.borderColor = 'rgba(76,175,80,0.2)';
+                        this.style.color = 'var(--primary-dark)';
+                    }
+                });
+            });
+            
+            // Notification button click
+            const notificationBtn = document.querySelector('.notification-btn');
+            notificationBtn.addEventListener('click', function() {
+                this.querySelector('.notification-badge').style.display = 'none';
+                alert('Notifications feature would open here');
+            });
+        });
+    </script>
+</body>
+</html>
