@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turfie - Add New Turf</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853; /* Turfie Green */
+            --primary-dark: #009624;
+            --dark: #212121;
+            --gray: #757575;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 800px; /* Centered form container */
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: var(--white);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .page-subtitle {
+            color: var(--gray);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.2);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-control-file {
+            border: 2px dashed var(--light-gray);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        
+        .form-control-file:hover {
+            border-color: var(--primary);
+        }
+
+        .form-control-file input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-text {
+            color: var(--gray);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #ccc;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="{% url 'users:dashboard_turf_owner' %}" class="logo">
+                    <i class="fas fa-futbol"></i>
+                    Turfie
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="form-container">
+            <div class="page-header">
+                <h1 class="page-title">Add a New Turf</h1>
+                <p class="page-subtitle">Fill in the details to list your turf on the platform.</p>
+            </div>
+
+            <form action="{% url 'turfs:turf_add' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Turf Name -->
+                <div class="form-group">
+                    <label for="id_name">Turf Name</label>
+                    <input type="text" name="name" id="id_name" class="form-control" placeholder="e.g., Elite Football Arena" required>
+                </div>
+
+                <!-- Location -->
+                <div class="form-group">
+                    <label for="id_location">Location</label>
+                    <input type="text" name="location" id="id_location" class="form-control" placeholder="e.g., Koramangala, Bengaluru" required>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="id_description">Description</label>
+                    <textarea name="description" id="id_description" class="form-control" placeholder="Describe your turf, its features, amenities, etc."></textarea>
+                </div>
+
+                <!-- Price per Hour -->
+                <div class="form-group">
+                    <label for="id_price_per_hour">Price per Hour (₹)</label>
+                    <input type="number" name="price_per_hour" id="id_price_per_hour" class="form-control" placeholder="e.g., 800" required step="0.01">
+                </div>
+
+                <!-- Main Image Upload -->
+                <div class="form-group">
+                    <label for="id_main_image">Main Image</label>
+                    <label class="form-control-file" for="id_main_image">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span class="file-upload-text">Click to upload an image</span>
+                    </label>
+                    <input type="file" name="main_image" id="id_main_image" accept="image/*">
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a href="{% url 'turfs:turf_list' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save Turf
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turfie - My Turfs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853; /* Turfie Green */
+            --primary-dark: #009624;
+            --primary-light: #5EFC82;
+            --secondary: #FF6D00; /* Accent Orange */
+            --dark: #212121;
+            --light: #FAFAFA;
+            --gray: #757575;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.19);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-light);
+        }
+
+        /* Page Title */
+        .page-header {
+            margin: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Turfs Grid */
+        .turfs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .turf-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .turf-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .turf-image {
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+            background-color: var(--light-gray);
+        }
+
+        .turf-content {
+            padding: 20px;
+        }
+
+        .turf-content h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .turf-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray);
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .turf-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .turf-stat {
+            text-align: center;
+        }
+
+        .turf-stat .value {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .turf-stat .label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .turf-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-outline:hover {
+            background: rgba(0,200,83,0.1);
+        }
+
+        .btn-danger {
+            background: #FFEBEE;
+            border: 1px solid #EF5350;
+            color: #EF5350;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239,83,80,0.1);
+        }
+
+        /* Add New Turf Card */
+        .add-turf-card {
+            background: var(--white);
+            border: 2px dashed var(--light-gray);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 380px;
+            text-decoration: none;
+        }
+
+        .add-turf-card:hover {
+            border-color: var(--primary);
+            background: rgba(0,200,83,0.05);
+        }
+
+        .add-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .add-icon i {
+            color: var(--white);
+            font-size: 24px;
+        }
+
+        .add-turf-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .no-turfs-message {
+            grid-column: 1 / -1; /* Span full width */
+            text-align: center;
+            padding: 40px;
+            background: var(--white);
+            border-radius: 12px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .turfs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .turfs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="{% url 'users:dashboard_turf_owner' %}" class="logo">
+                    <i class="fas fa-futbol"></i>
+                    Turfie
+                </a>
+                <div class="user-menu">
+                    <div class="user-profile">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="User" class="user-avatar">
+                        {% else %}
+                            <img src="https://placehold.co/40x40/E0E0E0/757575?text={{ user.username.0|upper }}" alt="User" class="user-avatar">
+                        {% endif %}
+                        <span>{{ user.business_name|default:user.username }}</span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">My Turfs</h1>
+            <a href="{% url 'turfs:turf_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add New Turf
+            </a>
+        </div>
+
+        <!-- Turfs Grid -->
+        <div class="turfs-grid">
+            
+            {% for turf in turfs %}
+            <div class="turf-card">
+                {% if turf.main_image %}
+                    <img src="{{ turf.main_image.url }}" alt="{{ turf.name }}" class="turf-image">
+                {% else %}
+                    <img src="https://placehold.co/500x180/E0E0E0/757575?text=No+Image" alt="No image available" class="turf-image">
+                {% endif %}
+                <div class="turf-content">
+                    <h3>{{ turf.name }}</h3>
+                    <div class="turf-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ turf.location }}</span>
+                    </div>
+                    <div class="turf-stats">
+                        <div class="turf-stat">
+                            <div class="value">68%</div> <!-- Occupancy is complex, keeping static for now -->
+                            <div class="label">Occupancy</div>
+                        </div>
+                        <div class="turf-stat">
+                            <div class="value">{{ turf.rating|floatformat:1 }}★</div>
+                            <div class="label">Rating</div>
+                        </div>
+                        <div class="turf-stat">
+                            <div class="value">₹{{ turf.price_per_hour|floatformat:0 }}</div>
+                            <div class="label">/ hour</div>
+                        </div>
+                    </div>
+                    <div class="turf-actions">
+                        <a href="{% url 'turfs:turf_edit' turf.id %}" class="btn btn-outline">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </a>
+                        <a href="{% url 'turfs:turf_delete' turf.id %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+                <div class="no-turfs-message">
+                    <h2>You haven't added any turfs yet.</h2>
+                    <p>Click the "Add New Turf" button to get started!</p>
+                </div>
+            {% endfor %}
+
+            <!-- Add New Turf Card -->
+            <a href="{% url 'turfs:turf_add' %}" class="add-turf-card">
+                <div class="add-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <p class="add-turf-text">Add New Turf</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

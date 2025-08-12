@@ -1,15 +1,115 @@
-# Keep your actual source static files
-# Ignore only the collected output
-/staticfiles/
+# .gitignore for a Django Project
+
+# Python
+# ------------------------------------------------------------------------------
+# Byte-compiled / optimized / DLL files
 __pycache__/
-/.env
-db.sqlite3
-*.log
-desktop.ini
+*.py[cod]
+*$py.class
 
+# C extensions
+*.so
 
-# Virtual environments
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+# Usually these files are created by pyinstaller, if you are using it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Environments
+# ------------------------------------------------------------------------------
+.env
+.venv
+env/
 venv/
-.venv/
 ENV/
-.env/
+env.bak
+venv.bak
+
+# Django
+# ------------------------------------------------------------------------------
+# Local database file
+db.sqlite3
+db.sqlite3-journal
+
+# User-uploaded media files
+media/
+
+# Static files collected by 'collectstatic'
+staticfiles/
+static_root/
+
+# Log files
+*.log
+logs/
+
+# Celery files
+celerybeat-schedule
+celerybeat.pid
+
+# IDE / Editor specific files
+# ------------------------------------------------------------------------------
+# VSCode
+.vscode/
+.history/
+
+# PyCharm
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# Operating System files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
