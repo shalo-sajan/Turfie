@@ -1,44 +1,60 @@
 # Turfs/models.py
 
 from django.db import models
-from django.conf import settings # Best practice for linking to the User model
+from django.conf import settings
 
-# Create your models here.
+class Amenity(models.Model):
+    """Represents a single amenity that a turf can offer, like Parking or Floodlights."""
+    name = models.CharField(max_length=100, unique=True)
+    # You can store the Font Awesome class, e.g., 'fas fa-parking'
+    icon_class = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Amenities" # Corrects plural form in admin
+
+    def __str__(self):
+        return self.name
 
 class Turf(models.Model):
-    """
-    Represents a single turf/venue that can be booked.
-    """
+    """Represents a single turf/venue that can be booked."""
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
-        related_name='turfs_owned',
-        help_text="The user who owns and manages this turf."
+        related_name='turfs_owned'
     )
     name = models.CharField(max_length=255)
-    location = models.CharField(max_length=255, help_text="e.g., 'Koramangala, Bengaluru'")
     description = models.TextField(blank=True)
     price_per_hour = models.DecimalField(max_digits=8, decimal_places=2)
-    
-    # For the main image of the turf. Pillow library is required: pip install Pillow
     main_image = models.ImageField(upload_to='turf_images/', blank=True, null=True)
+
+    # --- New Detailed Location Fields ---
+    address_line_1 = models.CharField(max_length=255, help_text="Street address, building, etc.")
+    city = models.CharField(max_length=100)
+    district = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=6)
+    google_maps_link = models.URLField(blank=True, null=True)
     
-    # Rating can be calculated based on reviews later
+    # --- New Time Fields ---
+    opening_time = models.TimeField()
+    closing_time = models.TimeField()
+
+    # --- New Many-to-Many relationship for Amenities ---
+    amenities = models.ManyToManyField(Amenity, blank=True)
+
+    # --- Existing Fields ---
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     review_count = models.PositiveIntegerField(default=0)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # We are removing the old 'location' field. Migrations will handle this.
 
     def __str__(self):
-        return f"{self.name} ({self.location})"
-
+        return f"{self.name} ({self.city})"
 
 class Booking(models.Model):
-    """
-    Represents a booking made by a player for a specific turf.
-    """
-    # Define status choices for the booking
+    """Represents a booking made by a player for a specific turf."""
     STATUS_CHOICES = [
         ('pending', 'Pending Confirmation'),
         ('confirmed', 'Confirmed'),
@@ -50,20 +66,14 @@ class Booking(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
-        related_name='bookings_made',
-        help_text="The player who made the booking."
+        related_name='bookings_made'
     )
-    
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    
-    # You can add payment details here later
     payment_id = models.CharField(max_length=100, blank=True, null=True)
     payment_status = models.CharField(max_length=20, default='unpaid')
-
     booked_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -71,8 +81,6 @@ class Booking(models.Model):
 
     @property
     def duration_hours(self):
-        """Calculates the duration of the booking in hours."""
         if self.start_time and self.end_time:
             return (self.end_time - self.start_time).total_seconds() / 3600
         return 0
-

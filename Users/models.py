@@ -1,6 +1,7 @@
 # users/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.urls import reverse
 
 # A helper function to define the upload path for profile pictures
 def user_profile_picture_path(instance, filename):
@@ -58,3 +59,10 @@ class User(AbstractUser):
     @property
     def is_turf_owner(self):
         return self.user_type == 'turf_owner'
+    
+    def get_dashboard_url(self):
+        """Returns the appropriate dashboard URL based on the user's type."""
+        if self.is_turf_owner:
+            return reverse('users:dashboard_turf_owner')
+        else:
+            return reverse('users:dashboard_player')

@@ -12,4 +12,5 @@ urlpatterns = [
     path('turf-owner-dashboard/', views.dashboard_turf_owner, name='dashboard_turf_owner'),
     path('player-dashboard/', views.dashboard_player, name='dashboard_player'),
     path('logout/', views.logout_view, name='logout'),
+    path('my-bookings/', views.my_bookings_view, name='my_bookings'),
 ]

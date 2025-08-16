@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Deletion</title>
+    <style>
+        body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #f5f7fa; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        h1 { margin-bottom: 10px; }
+        p { margin-bottom: 20px; color: #757575; }
+        .actions { display: flex; gap: 15px; justify-content: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn-danger { background-color: #EF5350; color: white; }
+        .btn-secondary { background-color: #E0E0E0; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Are you sure?</h1>
+        <p>You are about to permanently delete the turf: <strong>{{ turf.name }}</strong>.</p>
+        <p>This action cannot be undone.</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="actions">
+                <a href="{% url 'turfs:turf_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

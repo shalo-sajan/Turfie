@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Turfie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
+            --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); color: var(--dark); }
+        .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
+        .logo i { margin-right: 10px; }
+        .back-link { font-weight: 600; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .main-content { padding: 40px 0; }
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 32px; font-weight: 700; }
+        .section-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+        .bookings-list { display: flex; flex-direction: column; gap: 20px; }
+        .booking-card { background: var(--white); border-radius: 12px; box-shadow: var(--shadow-sm); display: flex; overflow: hidden; transition: var(--transition); }
+        .booking-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .booking-image { width: 200px; object-fit: cover; }
+        .booking-content { padding: 20px; flex: 1; display: flex; justify-content: space-between; align-items: center; }
+        .booking-details h3 { font-size: 20px; margin-bottom: 5px; }
+        .booking-details p { color: var(--gray); margin-bottom: 10px; }
+        .booking-time { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .booking-status { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: capitalize; }
+        .status-confirmed { background: rgba(76,175,80,0.1); color: #2E7D32; }
+        .status-pending { background: rgba(255,152,0,0.1); color: #F57C00; }
+        .status-cancelled { background: rgba(244,67,54,0.1); color: #D32F2F; }
+        .status-completed { background: rgba(63,81,181,0.1); color: #303F9F; }
+        .booking-actions { text-align: right; }
+        .booking-amount { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: var(--transition); border: 1px solid var(--primary); background: transparent; color: var(--primary); text-decoration: none; }
+        .btn:hover { background: rgba(0,200,83,0.1); }
+        .empty-message { text-align: center; padding: 40px; background: var(--white); border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="{% url 'users:dashboard_player' %}" class="logo"><i class="fas fa-futbol"></i> Turfie</a>
+            <a href="{% url 'users:dashboard_player' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">My Bookings</h1>
+            </div>
+
+            <section style="margin-bottom: 40px;">
+                <h2 class="section-title">Upcoming Bookings</h2>
+                <div class="bookings-list">
+                    {% for booking in upcoming_bookings %}
+                    <div class="booking-card">
+                        <img src="{{ booking.turf.main_image.url }}" alt="{{ booking.turf.name }}" class="booking-image">
+                        <div class="booking-content">
+                            <div class="booking-details">
+                                <h3>{{ booking.turf.name }}</h3>
+                                <p>{{ booking.turf.city }}, {{ booking.turf.district }}</p>
+                                <div class="booking-time">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>{{ booking.start_time|date:"D, d M Y" }} &middot; {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span>
+                                </div>
+                            </div>
+                            <div class="booking-actions">
+                                <div class="booking-amount">₹{{ booking.amount|floatformat:0 }}</div>
+                                <div class="booking-status status-{{ booking.status }}">{{ booking.get_status_display }}</div>
+                                <a href="#" class="btn" style="margin-top: 10px;">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-message">
+                        <p>You have no upcoming bookings. <a href="#">Find a turf to play!</a></p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">Past Bookings</h2>
+                <div class="bookings-list">
+                    {% for booking in past_bookings %}
+                    <div class="booking-card">
+                        <img src="{{ booking.turf.main_image.url }}" alt="{{ booking.turf.name }}" class="booking-image">
+                        <div class="booking-content">
+                            <div class="booking-details">
+                                <h3>{{ booking.turf.name }}</h3>
+                                <p>{{ booking.turf.city }}, {{ booking.turf.district }}</p>
+                                <div class="booking-time">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>{{ booking.start_time|date:"D, d M Y" }} &middot; {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span>
+                                </div>
+                            </div>
+                            <div class="booking-actions">
+                                <div class="booking-amount">₹{{ booking.amount|floatformat:0 }}</div>
+                                <div class="booking-status status-{{ booking.status }}">{{ booking.get_status_display }}</div>
+                                <a href="#" class="btn" style="margin-top: 10px;">Book Again</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-message">
+                        <p>You have no past bookings.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

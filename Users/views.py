@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Avg
+from django.utils import timezone
 
 # Import your models from your apps
 from .models import User
@@ -161,3 +162,22 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('landing')
+
+# "my bookings view"
+@login_required
+def my_bookings_view(request):
+    """
+    Displays a list of the current user's past and upcoming bookings.
+    """
+    now = timezone.now()
+    # Get bookings and prefetch the related turf to avoid extra database queries in the loop
+    all_bookings = Booking.objects.filter(user=request.user).select_related('turf').order_by('-start_time')
+
+    upcoming_bookings = all_bookings.filter(start_time__gte=now)
+    past_bookings = all_bookings.filter(start_time__lt=now)
+
+    context = {
+        'upcoming_bookings': upcoming_bookings,
+        'past_bookings': past_bookings,
+    }
+    return render(request, 'users/my_bookings.html', context)
