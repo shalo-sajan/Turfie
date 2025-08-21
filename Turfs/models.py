@@ -16,6 +16,17 @@ class Amenity(models.Model):
         return self.name
 
 class Turf(models.Model):
+        # --- NEW APPROVAL STATUS ---
+    APPROVAL_CHOICES = [
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    approval_status = models.CharField(
+        max_length=20, 
+        choices=APPROVAL_CHOICES, 
+        default='pending'
+    )
     """Represents a single turf/venue that can be booked."""
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, 

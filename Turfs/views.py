@@ -6,6 +6,37 @@ from django.contrib import messages
 from .models import Turf, Booking
 from .forms import TurfForm, BookingForm
 from datetime import datetime, date, time, timedelta
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+
+# --- NEW BOOKING MANAGEMENT VIEW ---
+
+@require_POST # This decorator ensures this view only accepts POST requests
+@login_required
+def manage_booking_view(request, booking_id):
+    """
+    Handles actions on a booking like confirm, reject, or cancel.
+    """
+    booking = get_object_or_404(Booking, id=booking_id)
+    action = request.POST.get('action')
+
+    # Security check and action handling
+    if action == 'confirm' and request.user == booking.turf.owner:
+        booking.status = 'confirmed'
+        messages.success(request, f"Booking #{booking.id} has been confirmed.")
+    elif action == 'reject' and request.user == booking.turf.owner:
+        booking.status = 'cancelled' # Or you could add a 'rejected' status
+        messages.warning(request, f"Booking #{booking.id} has been rejected.")
+    elif action == 'cancel' and request.user == booking.user:
+        booking.status = 'cancelled'
+        messages.info(request, "Your booking has been cancelled.")
+    else:
+        messages.error(request, "You are not authorized to perform this action.")
+        return redirect(request.user.get_dashboard_url())
+
+    booking.save()
+    return redirect('turfs:booking_detail', booking_id=booking.id)
+
 
 # --- Turf Management Views (No changes here) ---
 @login_required
@@ -69,23 +100,28 @@ def turf_detail_view(request, turf_id):
     turf = get_object_or_404(Turf, id=turf_id)
     
     # --- Time Slot Generation Logic ---
-    # Get the date from the request's GET parameters, default to today
-    selected_date_str = request.GET.get('date', date.today().strftime('%Y-%m-%d'))
+    selected_date_str = request.GET.get('date', timezone.now().strftime('%Y-%m-%d'))
     selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
 
-    # Get all bookings for this turf on the selected date
     bookings_on_date = Booking.objects.filter(
         turf=turf, 
         start_time__date=selected_date
     ).exclude(status='cancelled')
 
-    # Generate all possible 1-hour slots for the day
     time_slots = []
-    current_time = datetime.combine(selected_date, turf.opening_time)
-    end_time = datetime.combine(selected_date, turf.closing_time)
+    
+    # Create naive datetime objects first
+    start_datetime_naive = datetime.combine(selected_date, turf.opening_time)
+    end_datetime_naive = datetime.combine(selected_date, turf.closing_time)
+
+    # Make them timezone-aware
+    current_time = timezone.make_aware(start_datetime_naive)
+    end_time = timezone.make_aware(end_datetime_naive)
     
     while current_time < end_time:
         slot_end_time = current_time + timedelta(hours=1)
+        
+        # Now the comparison will work because both are timezone-aware
         is_booked = any(b.start_time < slot_end_time and b.end_time > current_time for b in bookings_on_date)
         
         time_slots.append({
@@ -102,8 +138,9 @@ def turf_detail_view(request, turf_id):
             start_time_val = booking_form.cleaned_data['start_time']
             end_time_val = booking_form.cleaned_data['end_time']
             
-            start_datetime = datetime.combine(date_val, start_time_val)
-            end_datetime = datetime.combine(date_val, end_time_val)
+            # Make the new booking datetimes aware before saving
+            start_datetime = timezone.make_aware(datetime.combine(date_val, start_time_val))
+            end_datetime = timezone.make_aware(datetime.combine(date_val, end_time_val))
             
             duration = (end_datetime - start_datetime).total_seconds() / 3600
             amount = duration * float(turf.price_per_hour)
@@ -114,7 +151,7 @@ def turf_detail_view(request, turf_id):
             )
             
             messages.success(request, f"Your booking for {turf.name} is pending confirmation.")
-            return redirect('users:dashboard_player')
+            return redirect('users:my_bookings')
     else:
         booking_form = BookingForm(turf=turf, initial={'date': selected_date})
 
@@ -135,4 +172,31 @@ def booking_detail_view(request, booking_id):
         return redirect(request.user.get_dashboard_url())
 
     context = {'booking': booking}
-    return render(request, 'turfs/booking_detail.html', context)
+    return render(request, 'turfs/booking_details.html', context)
+
+@require_POST # This decorator ensures this view only accepts POST requests
+@login_required
+def manage_booking_view(request, booking_id):
+    """
+    Handles actions on a booking like confirm, reject, or cancel.
+    """
+    booking = get_object_or_404(Booking, id=booking_id)
+    action = request.POST.get('action')
+
+    # Security check and action handling
+    if action == 'confirm' and request.user == booking.turf.owner:
+        booking.status = 'confirmed'
+        messages.success(request, f"Booking #{booking.id} has been confirmed.")
+    elif action == 'reject' and request.user == booking.turf.owner:
+        booking.status = 'cancelled' # Or you could add a 'rejected' status
+        messages.warning(request, f"Booking #{booking.id} has been rejected.")
+    elif action == 'cancel' and request.user == booking.user:
+        booking.status = 'cancelled'
+        messages.info(request, "Your booking has been cancelled.")
+    else:
+        messages.error(request, "You are not authorized to perform this action.")
+        return redirect(request.user.get_dashboard_url())
+
+    booking.save()
+    return redirect('turfs:booking_detail', booking_id=booking.id)
+

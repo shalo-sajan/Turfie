@@ -39,8 +39,8 @@
             <nav>
                 <ul class="sidebar-menu">
                     <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="#"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
-                    <li><a href="#"><i class="fas fa-map-marked-alt"></i> Find Turfs</a></li>
+                    <li><a href="{% url 'users:my_bookings' %}"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
+                    <li><a href="{% url 'turfs:turf_list' %}"><i class="fas fa-map-marked-alt"></i> Find Turfs</a></li>
                     <li><a href="#"><i class="fas fa-trophy"></i> Rewards</a></li>
                     <li><a href="#"><i class="fas fa-wallet"></i> Payments</a></li>
                     <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
@@ -61,36 +61,39 @@
                 </div>
             </section>
 
-            <section aria-labelledby="bookings-heading">
-                <div class="section-title">
-                    <h2 id="bookings-heading">Upcoming Bookings</h2>
-                    <a href="#">View All</a>
+<!-- Upcoming Bookings -->
+<section aria-labelledby="bookings-heading">
+    <div class="section-title">
+        <h2 id="bookings-heading">Upcoming Bookings</h2>
+        <a href="{% url 'users:my_bookings' %}">View All</a>
+    </div>
+    <div class="bookings-grid">
+        
+        {% for booking in upcoming_bookings %}
+        <div class="booking-card">
+            <div class="booking-header">
+                <span class="booking-id">#BK-{{ booking.id }}</span>
+                <span class="booking-status status-{{ booking.status|lower }}">{{ booking.get_status_display }}</span>
+            </div>
+            <div class="booking-details">
+                <h3>{{ booking.turf.name }}</h3>
+                <p>{{ booking.turf.description|truncatewords:7 }}</p>
+                <div class="booking-time">
+                    <i class="fas fa-calendar-day"></i>
+                    {{ booking.start_time|date:"D, M d, P" }} - {{ booking.end_time|date:"P" }}
                 </div>
-                <div class="bookings-grid">
-                    {% for booking in upcoming_bookings %}
-                    <div class="booking-card" data-booking-id="{{ booking.id }}">
-                        <div class="booking-header">
-                            <span class="booking-id">#BK-{{ booking.id }}</span>
-                            <span class="booking-status status-{{ booking.status|lower }}">{{ booking.get_status_display }}</span>
-                        </div>
-                        <div class="booking-details">
-                            <h3>{{ booking.turf.name }}</h3>
-                            <p>{{ booking.turf.description|truncatewords:7 }}</p>
-                            <div class="booking-time">
-                                <i class="fas fa-calendar-day"></i>
-                                {{ booking.start_time|date:"D, M d, P" }} - {{ booking.end_time|date:"P" }}
-                            </div>
-                        </div>
-                        <div class="booking-actions">
-                            <a href="{% url 'booking_details' booking.id %}" class="btn btn-primary">View Details</a>
-                            <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-outline">Cancel</a>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p>You have no upcoming bookings. <a href="#">Time to play!</a></p>
-                    {% endfor %}
-                </div>
-            </section>
+            </div>
+            <div class="booking-actions">
+                <a href="{% url 'turfs:booking_detail' booking.id %}" class="btn btn-primary">View Details</a>
+                <a href="#" class="btn btn-outline">Cancel</a> <!-- Placeholder for cancel functionality -->
+            </div>
+        </div>
+        {% empty %}
+        <p>You have no upcoming bookings. <a href="#">Time to play!</a></p>
+        {% endfor %}
+
+    </div>
+</section>
 
             <section aria-labelledby="turfs-heading">
                 <div class="section-title">
@@ -109,7 +112,7 @@
                             </div>
                             <div class="turf-location">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>{{ turf.location_name }}</span>
+                                <span>{{ turf.city }}, {{ turf.district }}</span>
                             </div>
                             <div class="turf-price">₹{{ turf.price_per_hour }}/hour</div>
                             <div class="turf-actions">

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking #{{ booking.id }} - Turfie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
+            --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); color: var(--dark); }
+        .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+        .nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
+        .logo i { margin-right: 10px; }
+        .back-link { font-weight: 600; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .main-content { padding: 40px 0; }
+        .booking-container { background: var(--white); border-radius: 12px; box-shadow: var(--shadow-md); overflow: hidden; }
+        .booking-header { padding: 25px; border-bottom: 1px solid #eee; }
+        .booking-title { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+        .booking-id { color: var(--gray); font-size: 14px; }
+        .booking-body { display: grid; grid-template-columns: 2fr 1fr; }
+        .booking-main-details { padding: 25px; }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); }
+        .detail-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
+        .detail-item i { color: var(--primary); width: 20px; text-align: center; margin-top: 3px; }
+        .detail-item-content h4 { font-size: 16px; margin-bottom: 3px; }
+        .detail-item-content p { color: var(--gray); }
+        .booking-summary { background-color: #fafafa; padding: 25px; border-left: 1px solid #eee; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .summary-total { font-weight: 700; font-size: 20px; border-top: 1px solid #ddd; padding-top: 15px; }
+        .booking-status { padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: 700; text-transform: capitalize; text-align: center; }
+        .status-confirmed { background: rgba(76,175,80,0.1); color: #2E7D32; }
+        .status-pending { background: rgba(255,152,0,0.1); color: #F57C00; }
+        .status-cancelled { background: rgba(244,67,54,0.1); color: #D32F2F; }
+        .status-completed { background: rgba(63,81,181,0.1); color: #303F9F; }
+        .booking-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .btn { width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 16px; text-decoration: none; text-align: center; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-danger { background: #D32F2F; color: var(--white); }
+        .btn-outline { background: transparent; border: 1px solid var(--gray); color: var(--gray); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="{% url 'users:dashboard_player' %}" class="logo"><i class="fas fa-futbol"></i> Turfie</a>
+            <a href="{{ request.META.HTTP_REFERER|default:request.user.get_dashboard_url }}" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="booking-container">
+                <div class="booking-header">
+                    <h1 class="booking-title">Booking Details</h1>
+                    <p class="booking-id">Booking ID: #BK-{{ booking.id }}</p>
+                </div>
+                <div class="booking-body">
+                    <div class="booking-main-details">
+                        <h2 class="section-title">Turf Information</h2>
+                        <div class="detail-item">
+                            <i class="fas fa-futbol"></i>
+                            <div class="detail-item-content">
+                                <h4>{{ booking.turf.name }}</h4>
+                                <p>{{ booking.turf.address_line_1 }}, {{ booking.turf.city }}</p>
+                            </div>
+                        </div>
+
+                        <h2 class="section-title" style="margin-top: 30px;">Booking Schedule</h2>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div class="detail-item-content">
+                                <h4>{{ booking.start_time|date:"l, d F Y" }}</h4>
+                                <p>{{ booking.start_time|time:"g:i A" }} to {{ booking.end_time|time:"g:i A" }} ({{ booking.duration_hours }} hours)</p>
+                            </div>
+                        </div>
+                        
+                        <h2 class="section-title" style="margin-top: 30px;">Booked By</h2>
+                        <div class="detail-item">
+                            <i class="fas fa-user"></i>
+                            <div class="detail-item-content">
+                                <h4>{{ booking.user.username }}</h4>
+                                <p>{{ booking.user.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="booking-summary">
+                        <h2 class="section-title">Summary</h2>
+                        <div class="summary-item">
+                            <span>Base Price</span>
+                            <span>₹{{ booking.turf.price_per_hour|floatformat:0 }}/hr</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Duration</span>
+                            <span>{{ booking.duration_hours }} hours</span>
+                        </div>
+                        <div class="summary-item summary-total">
+                            <span>Total Amount</span>
+                            <span>₹{{ booking.amount|floatformat:0 }}</span>
+                        </div>
+
+                        <div style="margin-top: 30px;">
+                            <h2 class="section-title">Status</h2>
+                            <div class="booking-status status-{{ booking.status }}">{{ booking.get_status_display }}</div>
+                        </div>
+
+                        <div class="booking-actions">
+                            <!-- OWNER ACTIONS -->
+                            {% if request.user == booking.turf.owner and booking.status == 'pending' %}
+                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: contents;">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="confirm" class="btn btn-primary">Confirm Booking</button>
+                                </form>
+                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: contents;">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="reject" class="btn btn-danger">Reject Booking</button>
+                                </form>
+                            {% endif %}
+
+                            <!-- PLAYER ACTIONS -->
+                            {% if request.user == booking.user and booking.status == 'pending' or booking.status == 'confirmed' %}
+                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: contents;">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="cancel" class="btn btn-outline">Cancel Booking</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

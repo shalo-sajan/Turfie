@@ -10,6 +10,7 @@ urlpatterns = [
     path('users/', include('Users.urls')),  # All URLs under /users/
     path('', views.landing, name='landing'),  # ✅ This makes http://127.0.0.1:8000/ work
     path('turfs/', include('Turfs.urls')),  # All URLs under /turfs/
+    path('management/', include ('management.urls'))
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Serve media files in development
 
 #  static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)  # Serve static files in development

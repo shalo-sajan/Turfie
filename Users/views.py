@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Avg
 from django.utils import timezone
+from Turfs.models import Booking, Turf
 
 # Import your models from your apps
 from .models import User
@@ -69,7 +70,9 @@ class register(View):
             auth_login(request, user)
             messages.success(request, 'Account created successfully! Welcome to Turfie.')
             
-            if user.is_turf_owner:
+            if user.is_staff:  
+                return redirect('management:admin_dashboard')
+            elif user.is_turf_owner:
                 return redirect('users:dashboard_turf_owner')
             else:
                 return redirect('users:dashboard_player')
@@ -94,8 +97,9 @@ def login_view(request):
             if user is not None:
                 auth_login(request, user)
                 messages.success(request, f"Welcome back, {username}!")
-                
-                if user.is_turf_owner:
+                if user.is_staff:  # Check if the user is an admin
+                    return redirect('management:admin_dashboard')
+                elif user.is_turf_owner:
                     return redirect('users:dashboard_turf_owner')
                 else:
                     return redirect('users:dashboard_player')
@@ -140,21 +144,26 @@ def dashboard_turf_owner(request):
 
 @login_required
 def dashboard_player(request):
-    current_user = request.user
-
-    # Fetch data related to this user from the database
-    upcoming_bookings = Booking.objects.filter(user=current_user, status='confirmed').order_by('start_time')[:2]
-    recommended_turfs = Turf.objects.all().order_by('-rating')[:3]
-    notification_count = 3 # Placeholder
+    now = timezone.now()
     
-    # Package all the data into a context dictionary
+    # Fetch the next 2 upcoming bookings for the dashboard preview
+    upcoming_bookings = Booking.objects.filter(
+        user=request.user,
+        start_time__gte=now
+    ).select_related('turf').order_by('start_time')[:2]
+    
+    
+
+    # You can keep your logic for recommended turfs here
+    recommended_turfs = Turf.objects.filter(approval_status='approved').order_by('-rating')[:3]
+    
+    
     context = {
-        'user': current_user,
+        'user': request.user,
         'upcoming_bookings': upcoming_bookings,
         'recommended_turfs': recommended_turfs,
-        'notification_count': notification_count,
+        'notification_count': 3 # Placeholder
     }
-
     return render(request, 'dashboard_player.html', context)
 
 def logout_view(request):
