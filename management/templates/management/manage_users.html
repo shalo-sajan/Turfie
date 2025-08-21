@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
+            --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); margin: 0; display: flex; }
+        .sidebar { width: 260px; background: var(--white); height: 100vh; position: sticky; top: 0; box-shadow: var(--shadow-md); display: flex; flex-direction: column; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px; display: flex; align-items: center; font-size: 24px; font-weight: 700; color: var(--primary); border-bottom: 1px solid #eee; }
+        .sidebar-header i { margin-right: 10px; }
+        .sidebar-nav { list-style: none; padding: 20px 10px; }
+        .sidebar-nav li a { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; color: var(--dark); text-decoration: none; font-weight: 500; margin-bottom: 5px; transition: all 0.3s ease; }
+        .sidebar-nav li a:hover, .sidebar-nav li a.active { background: rgba(0,200,83,0.1); color: var(--primary-dark); }
+        .sidebar-nav li a i { width: 24px; text-align: center; margin-right: 12px; font-size: 16px; }
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; }
+        .header { font-size: 28px; font-weight: 700; margin-bottom: 20px; }
+        .content-card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: var(--shadow-sm); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
+        th { font-size: 14px; color: var(--gray); }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-active { background-color: #E8F5E9; color: #388E3C; }
+        .status-blocked { background-color: #FFEBEE; color: #D32F2F; }
+        .btn { padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; font-size: 12px; }
+        .btn-success { background-color: #4CAF50; color: white; }
+        .btn-danger { background-color: #F44336; color: white; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-futbol"></i> Turfie Admin</div>
+        <ul class="sidebar-nav">
+            <li><a href="{% url 'management:admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{% url 'management:turf_requests' %}"><i class="fas fa-clipboard-check"></i> Turf Requests</a></li>
+            <li><a href="{% url 'management:manage_users' %}" class="active"><i class="fas fa-users-cog"></i> Manage Users</a></li>
+            <li><a href="#"><i class="fas fa-map-marked-alt"></i> Manage Turfs</a></li>
+            <li><a href="#"><i class="fas fa-calendar-check"></i> All Bookings</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <h1 class="header">Manage Users</h1>
+        <div class="content-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>User Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td><strong>{{ u.username }}</strong></td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.get_user_type_display }}</td>
+                        <td>
+                            {% if u.is_active %}
+                                <span class="status-badge status-active">Active</span>
+                            {% else %}
+                                <span class="status-badge status-blocked">Blocked</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{% url 'management:toggle_user_status' u.id %}" method="POST">
+                                {% csrf_token %}
+                                {% if u.is_active %}
+                                    <button type="submit" class="btn btn-danger">Block</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-success">Unblock</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px;">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

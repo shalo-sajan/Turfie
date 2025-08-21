@@ -70,4 +70,30 @@ def manage_turf_request_view(request, turf_id):
     return redirect('management:turf_requests')
 
 
+@staff_member_required
+def manage_users_view(request):
+    """Lists all users for the admin to manage."""
+    # Exclude the current admin from the list to prevent self-blocking
+    users = User.objects.exclude(id=request.user.id).order_by('username')
+    context = {
+        'users': users,
+    }
+    return render(request, 'management/manage_users.html', context)
+
+
+@require_POST
+@staff_member_required
+def toggle_user_status_view(request, user_id):
+    """Blocks or unblocks a user by toggling their 'is_active' status."""
+    user_to_toggle = get_object_or_404(User, id=user_id)
+    
+    # Toggle the is_active status
+    user_to_toggle.is_active = not user_to_toggle.is_active
+    user_to_toggle.save()
+    
+    status = "unblocked" if user_to_toggle.is_active else "blocked"
+    messages.success(request, f"User '{user_to_toggle.username}' has been {status}.")
+    
+    return redirect('management:manage_users')
+
 
