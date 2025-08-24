@@ -74,7 +74,7 @@ def manage_turf_request_view(request, turf_id):
 def manage_users_view(request):
     """Lists all users for the admin to manage."""
     # Exclude the current admin from the list to prevent self-blocking
-    users = User.objects.exclude(id=request.user.id).order_by('username')
+    users = User.objects.filter(is_staff=False).order_by('username')
     context = {
         'users': users,
     }

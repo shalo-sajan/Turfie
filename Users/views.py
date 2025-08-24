@@ -92,8 +92,15 @@ def login_view(request):
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             
-            user = authenticate(username=username, password=password)
+            try:
+                user_check = User.objects.get(username=username)
+                if not user_check.is_active:
+                    messages.error(request, "Your account is inactive. Please contact support.")
+                    return render(request, 'login.html', {'form': form})
+            except User.DoesNotExist:
+                pass
             
+            user = authenticate(username=username, password=password)
             if user is not None:
                 auth_login(request, user)
                 messages.success(request, f"Welcome back, {username}!")
