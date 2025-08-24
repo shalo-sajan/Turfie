@@ -3,7 +3,7 @@
 from django import forms
 from .models import Turf, Amenity, Booking
 from django.core.exceptions import ValidationError
-from datetime import datetime, timedelta
+from datetime import date,datetime, timedelta
 
 class TurfForm(forms.ModelForm):
     amenities = forms.ModelMultipleChoiceField(
@@ -46,7 +46,16 @@ class BookingForm(forms.Form):
         # We need the turf to perform validation, so we pass it in when creating the form
         self.turf = kwargs.pop('turf', None)
         super().__init__(*args, **kwargs)
-
+        
+    def clean_date(self):
+        selected_date = self.cleaned_data.get('date')
+        if selected_date:
+            if selected_date < date.today():
+                raise ValidationError("You cannot book a date in the past.")
+            if selected_date > (date.today() + timedelta(days=7)):
+                raise ValidationError("You can only book up to 7 days in advance.")
+        return selected_date
+    
     def clean(self):
         cleaned_data = super().clean()
         date = cleaned_data.get("date")

@@ -161,9 +161,11 @@ def dashboard_player(request):
     
     
 
-    # You can keep your logic for recommended turfs here
-    recommended_turfs = Turf.objects.filter(approval_status='approved').order_by('-rating')[:3]
-    
+    # ✅ This query now filters for both approved status AND an active owner
+    recommended_turfs = Turf.objects.filter(
+        approval_status='approved', 
+        owner__is_active=True
+    ).order_by('-rating')[:3]
     
     context = {
         'user': request.user,

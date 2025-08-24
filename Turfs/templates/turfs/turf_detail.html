@@ -9,11 +9,12 @@
         :root {
             --primary: #00C853; --primary-dark: #009624; --secondary: #FF6D00;
             --dark: #212121; --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
+            --danger: #D32F2F; --danger-light: #FFEBEE;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
             --transition: all 0.3s ease;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); color: var(--dark); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light-gray); color: var(--dark); }
         .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         .nav { display: flex; justify-content: space-between; align-items: center; }
@@ -40,12 +41,15 @@
         .btn { width: 100%; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 16px; text-decoration: none; text-align: center; display: block; }
         .btn-primary { background: var(--primary); color: var(--white); }
         .btn-primary:hover { background: var(--primary-dark); }
-        .time-slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 20px; }
-        .time-slot { padding: 10px; border: 2px solid #ddd; border-radius: 6px; text-align: center; font-weight: 500; }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .time-slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 20px; }
+        .time-slot { padding: 10px; border: 2px solid #ddd; border-radius: 6px; text-align: center; font-weight: 500; font-size: 14px; }
         .time-slot.available { background: #E8F5E9; color: var(--primary-dark); cursor: pointer; }
         .time-slot.available:hover { border-color: var(--primary); }
-        .time-slot.booked { background: #FBE9E7; color: #D32F2F; cursor: not-allowed; text-decoration: line-through; border-color: #FFCCBC; }
+        .time-slot.booked { background: #FBE9E7; color: var(--danger); cursor: not-allowed; text-decoration: line-through; border-color: #FFCCBC; }
         .time-slot.selected { background: #BBDEFB; border-color: #2196F3; color: #1976D2; font-weight: 700; }
+        .form-errors { background-color: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .form-errors p { margin: 0; }
         @media (max-width: 992px) { .turf-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -83,34 +87,55 @@
                 </div>
 
                 <div class="turf-booking-column">
-                    <aside class="booking-card">
-                        <h2 class="section-title">Book Your Slot</h2>
-                        <div class="form-group">
-                            <label for="date-selector">Select Date</label>
-                            <input type="date" id="date-selector" name="date" class="form-control" value="{{ selected_date|date:'Y-m-d' }}">
-                        </div>
-                        <div class="time-slots-grid" id="time-slots-container">
-                            {% for slot in time_slots %}
-                                <div class="time-slot {% if slot.is_booked %}booked{% else %}available{% endif %}" data-time="{{ slot.start_time|time:'H:i' }}">
-                                    {{ slot.start_time|time:'g:i A' }}
-                                </div>
-                            {% empty %}
-                                <p>No time slots available for this day.</p>
-                            {% endfor %}
-                        </div>
-
-                        <form action="{% url 'turfs:turf_detail' turf.id %}" method="POST" style="margin-top: 20px;">
-                            {% csrf_token %}
-                            {{ booking_form.non_field_errors }}
-                            <div style="display: none;">
-                                {{ booking_form.date }}
-                                {{ booking_form.start_time }}
-                                {{ booking_form.end_time }}
+                    {% if turf.approval_status == 'approved' and turf.owner.is_active %}
+                        <aside class="booking-card">
+                            <h2 class="section-title">Book Your Slot</h2>
+                            <div class="form-group">
+                                <label for="date-selector">Select Date</label>
+                                <input type="date" id="date-selector" name="date" class="form-control" 
+                                       value="{{ selected_date|date:'Y-m-d' }}" 
+                                       min="{{ today|date:'Y-m-d' }}" 
+                                       max="{{ max_date|date:'Y-m-d' }}">
                             </div>
-                            <p id="selected-slot-text" style="text-align: center; font-weight: 600; margin-bottom: 15px; color: var(--primary-dark); min-height: 20px;"></p>
-                            <button type="submit" id="book-now-btn" class="btn btn-primary" disabled>Select a Start Time</button>
-                        </form>
-                    </aside>
+                            <div class="time-slots-grid" id="time-slots-container">
+                                {% for slot in time_slots %}
+                                    <div class="time-slot {% if slot.is_booked %}booked{% else %}available{% endif %}" data-time="{{ slot.start_time|time:'H:i' }}">
+                                        {{ slot.start_time|time:'g:i A' }} - {{ slot.end_time|time:'g:i A' }}
+                                    </div>
+                                {% empty %}
+                                    <p>No time slots available for this day.</p>
+                                {% endfor %}
+                            </div>
+
+                            <form action="?date={{ selected_date|date:'Y-m-d' }}" method="POST" style="margin-top: 20px;">
+                                {% csrf_token %}
+                                
+                                {% if booking_form.errors %}
+                                <div class="form-errors">
+                                    {% for field in booking_form %}
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in booking_form.non_field_errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div style="display: none;">{{ booking_form.date }}{{ booking_form.start_time }}{{ booking_form.end_time }}</div>
+                                <p id="selected-slot-text" style="text-align: center; font-weight: 600; margin-bottom: 15px; color: var(--primary-dark); min-height: 20px;"></p>
+                                <button type="submit" id="book-now-btn" class="btn btn-primary" disabled>Select a Slot</button>
+                            </form>
+                        </aside>
+                    {% else %}
+                        <aside class="booking-card">
+                            <h2 class="section-title">Booking Unavailable</h2>
+                            <p style="padding: 20px 0; color: var(--gray); text-align: center;">
+                                This turf is currently not accepting new bookings. Please check back later.
+                            </p>
+                        </aside>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -119,10 +144,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const dateSelector = document.getElementById('date-selector');
+            if (!dateSelector) return;
+
             const slotsContainer = document.getElementById('time-slots-container');
             const bookBtn = document.getElementById('book-now-btn');
             const selectedSlotText = document.getElementById('selected-slot-text');
-
             const dateField = document.querySelector('[name=date]');
             const startTimeField = document.querySelector('[name=start_time]');
             const endTimeField = document.querySelector('[name=end_time]');
@@ -130,44 +156,31 @@
             let startSlot = null;
             let endSlot = null;
 
-            dateSelector.addEventListener('change', function() {
-                window.location.href = `?date=${this.value}`;
-            });
+            dateSelector.addEventListener('change', () => window.location.href = `?date=${dateSelector.value}`);
 
             slotsContainer.addEventListener('click', function(e) {
                 if (!e.target.classList.contains('available')) return;
-
                 const clickedSlot = e.target;
 
                 if (!startSlot) {
-                    // First click: setting the start time
                     startSlot = clickedSlot;
-                    startSlot.classList.add('selected');
-                    bookBtn.textContent = 'Select an End Time';
-                    updateSelectedText();
-                } else if (clickedSlot === startSlot) {
-                    // Clicking the same slot again: deselect it
+                    endSlot = clickedSlot; // For a 1-hour booking
+                } else if (clickedSlot === startSlot && startSlot === endSlot) {
                     resetSelection();
+                    return;
                 } else {
-                    // Second click: setting the end time
                     endSlot = clickedSlot;
-                    validateAndHighlightRange();
                 }
+                validateAndHighlightRange();
             });
 
             function validateAndHighlightRange() {
                 const allSlots = Array.from(slotsContainer.querySelectorAll('.time-slot'));
-                const startIndex = allSlots.indexOf(startSlot);
-                const endIndex = allSlots.indexOf(endSlot);
+                let startIndex = allSlots.indexOf(startSlot);
+                let endIndex = allSlots.indexOf(endSlot);
 
-                // Ensure start is before end
-                if (startIndex > endIndex) {
-                    resetSelection();
-                    alert("End time must be after the start time.");
-                    return;
-                }
+                if (startIndex > endIndex) { [startIndex, endIndex] = [endIndex, startIndex]; }
 
-                // Check for booked slots within the range
                 for (let i = startIndex; i <= endIndex; i++) {
                     if (allSlots[i].classList.contains('booked')) {
                         resetSelection();
@@ -176,21 +189,18 @@
                     }
                 }
 
-                // If valid, highlight the range
                 allSlots.forEach((slot, i) => {
-                    if (i >= startIndex && i <= endIndex) {
-                        slot.classList.add('selected');
-                    }
+                    slot.classList.toggle('selected', i >= startIndex && i <= endIndex);
                 });
-
+                
+                startSlot = allSlots[startIndex];
+                endSlot = allSlots[endIndex];
                 updateFormAndButton();
             }
             
             function updateFormAndButton() {
                 const startTime = startSlot.dataset.time;
                 const endTimeRaw = endSlot.dataset.time;
-                
-                // End time is the start of the next hour
                 const [h, m] = endTimeRaw.split(':');
                 const endHours = (parseInt(h) + 1).toString().padStart(2, '0');
                 const endTime = `${endHours}:${m}`;
@@ -206,37 +216,20 @@
 
             function updateSelectedText() {
                 if (!startSlot) {
-                    selectedSlotText.textContent = '';
-                    return;
+                    selectedSlotText.textContent = ''; return;
                 }
-                const startText = startSlot.textContent.trim();
-                if (!endSlot) {
-                    selectedSlotText.textContent = `Start: ${startText}`;
-                    return;
-                }
-                const endTextRaw = endSlot.textContent.trim();
-                // Calculate the end time text (e.g., 10:00 AM becomes 11:00 AM)
-                const endHour = parseInt(endTextRaw.split(':')[0]);
-                const endAmPm = endTextRaw.includes('AM') ? 'AM' : 'PM';
-                let nextHour = endHour + 1;
-                let nextAmPm = endAmPm;
-                if (endHour === 11 && endAmPm === 'AM') { nextHour = 12; nextAmPm = 'PM'; }
-                else if (endHour === 12 && endAmPm === 'PM') { nextHour = 1; nextAmPm = 'AM'; }
-                else if (endHour === 11 && endAmPm === 'PM') { nextHour = 12; nextAmPm = 'AM'; }
-
-                const endText = `${nextHour}:00 ${nextAmPm}`;
-
+                const startText = startSlot.textContent.split('-')[0].trim();
+                const endText = endSlot.textContent.split('-')[1].trim();
                 selectedSlotText.textContent = `Selected: ${startText} - ${endText}`;
             }
 
             function resetSelection() {
-                slotsContainer.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                slotsContainer.querySelectorAll('.time-slot.selected').forEach(s => s.classList.remove('selected'));
                 startSlot = null;
                 endSlot = null;
                 bookBtn.disabled = true;
-                bookBtn.textContent = 'Select a Start Time';
+                bookBtn.textContent = 'Select a Slot';
                 updateSelectedText();
-                // Clear form fields
                 startTimeField.value = '';
                 endTimeField.value = '';
             }

@@ -8,6 +8,12 @@ from .forms import TurfForm, BookingForm
 from datetime import datetime, date, time, timedelta
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+import qrcode
+import io
+import base64
 
 # --- NEW BOOKING MANAGEMENT VIEW ---
 
@@ -94,14 +100,15 @@ def turf_delete_view(request, turf_id):
 
 
 # --- Turf Booking Views (Updated Logic) ---
-
 @login_required
 def turf_detail_view(request, turf_id):
     turf = get_object_or_404(Turf, id=turf_id)
     
-    # --- Time Slot Generation Logic ---
-    selected_date_str = request.GET.get('date', timezone.now().strftime('%Y-%m-%d'))
+    # --- Time Slot & Date Logic ---
+    today = timezone.now().date()
+    selected_date_str = request.GET.get('date', today.strftime('%Y-%m-%d'))
     selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+    max_date = today + timedelta(days=7)
 
     bookings_on_date = Booking.objects.filter(
         turf=turf, 
@@ -109,23 +116,18 @@ def turf_detail_view(request, turf_id):
     ).exclude(status='cancelled')
 
     time_slots = []
-    
-    # Create naive datetime objects first
     start_datetime_naive = datetime.combine(selected_date, turf.opening_time)
     end_datetime_naive = datetime.combine(selected_date, turf.closing_time)
-
-    # Make them timezone-aware
     current_time = timezone.make_aware(start_datetime_naive)
     end_time = timezone.make_aware(end_datetime_naive)
     
     while current_time < end_time:
         slot_end_time = current_time + timedelta(hours=1)
-        
-        # Now the comparison will work because both are timezone-aware
         is_booked = any(b.start_time < slot_end_time and b.end_time > current_time for b in bookings_on_date)
         
         time_slots.append({
             'start_time': current_time.time(),
+            'end_time': slot_end_time.time(), # Add end time for display
             'is_booked': is_booked
         })
         current_time += timedelta(hours=1)
@@ -134,11 +136,11 @@ def turf_detail_view(request, turf_id):
     if request.method == 'POST':
         booking_form = BookingForm(request.POST, turf=turf)
         if booking_form.is_valid():
+            # ... (your existing POST logic remains the same)
             date_val = booking_form.cleaned_data['date']
             start_time_val = booking_form.cleaned_data['start_time']
             end_time_val = booking_form.cleaned_data['end_time']
             
-            # Make the new booking datetimes aware before saving
             start_datetime = timezone.make_aware(datetime.combine(date_val, start_time_val))
             end_datetime = timezone.make_aware(datetime.combine(date_val, end_time_val))
             
@@ -160,19 +162,12 @@ def turf_detail_view(request, turf_id):
         'booking_form': booking_form,
         'time_slots': time_slots,
         'selected_date': selected_date,
+        'today': today,
+        'max_date': max_date,
     }
     return render(request, 'turfs/turf_detail.html', context)
-@login_required
-def booking_detail_view(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id)
-    
-    # Security check: ensure the user is either the player or the turf owner
-    if request.user != booking.user and request.user != booking.turf.owner:
-        messages.error(request, "You are not authorized to view this booking.")
-        return redirect(request.user.get_dashboard_url())
 
-    context = {'booking': booking}
-    return render(request, 'turfs/booking_details.html', context)
+
 
 @require_POST # This decorator ensures this view only accepts POST requests
 @login_required
@@ -200,3 +195,61 @@ def manage_booking_view(request, booking_id):
     booking.save()
     return redirect('turfs:booking_detail', booking_id=booking.id)
 
+from .models import Booking 
+
+# ... (add this function with your other views)
+@login_required
+def booking_detail_view(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Security check: ensure the user is either the player or the turf owner
+    if request.user != booking.user and request.user != booking.turf.owner:
+        messages.error(request, "You are not authorized to view this booking.")
+        return redirect(request.user.get_dashboard_url())
+
+    context = {'booking': booking}
+    # You will need to create this template next
+    return render(request, 'turfs/booking_details.html', context)
+
+@login_required
+def booking_receipt_pdf_view(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if request.user != booking.user and request.user != booking.turf.owner:
+        messages.error(request, "You are not authorized to view this receipt.")
+        return redirect(request.user.get_dashboard_url())
+
+    # --- QR Code Generation (no change here) ---
+    qr_data = (
+        f"Booking ID: {booking.id}\n"
+        f"Turf: {booking.turf.name}\n"
+        f"Player: {booking.user.username}\n"
+        f"Date: {booking.start_time.strftime('%d %b %Y')}"
+    )
+    qr_img = qrcode.make(qr_data)
+    buffer = io.BytesIO()
+    qr_img.save(buffer, format='PNG')
+    qr_image_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    # --- ✅ NEW: Image to Base64 Conversion ---
+    turf_image_base64 = None
+    if booking.turf.main_image:
+        try:
+            with booking.turf.main_image.open('rb') as image_file:
+                turf_image_base64 = base64.b64encode(image_file.read()).decode()
+        except FileNotFoundError:
+            # Handle case where image file is missing
+            turf_image_base64 = None
+
+    context = {
+        'booking': booking,
+        'qr_image_base64': qr_image_base64,
+        'turf_image_base64': turf_image_base64, # Pass the new variable to the template
+    }
+    html_string = render_to_string('turfs/receipt.html', context)
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf = html.write_pdf()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="receipt_BK-{booking.id}.pdf"'
+    return response

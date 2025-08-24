@@ -123,7 +123,11 @@
                                     <button type="submit" name="action" value="reject" class="btn btn-danger">Reject Booking</button>
                                 </form>
                             {% endif %}
-
+                            {% if booking.status == 'confirmed' or booking.status == 'completed' %}
+                                <a href="{% url 'turfs:booking_receipt' booking.id %}" target="_blank" class="btn btn-primary" style="margin-top: 10px;">
+                                    <i class="fas fa-receipt"></i> Generate Receipt
+                                </a>
+                            {% endif %}
                             <!-- PLAYER ACTIONS -->
                             {% if request.user == booking.user and booking.status == 'pending' or booking.status == 'confirmed' %}
                                 <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: contents;">
