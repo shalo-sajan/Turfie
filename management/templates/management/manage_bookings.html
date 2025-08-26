@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users - Admin</title>
+    <title>Monitor Bookings - Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -22,15 +22,19 @@
         .main-content { flex: 1; padding: 20px; overflow-y: auto; }
         .header { font-size: 28px; font-weight: 700; margin-bottom: 20px; }
         .content-card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: var(--shadow-sm); }
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; }
+        .filter-bar input, .filter-bar select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .filter-bar input { flex: 1; }
         table { width: 100%; border-collapse: collapse; }
         th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
         th { font-size: 14px; color: var(--gray); }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .status-active { background-color: #E8F5E9; color: #388E3C; }
-        .status-blocked { background-color: #FFEBEE; color: #D32F2F; }
-        .btn { padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; font-size: 12px; }
-        .btn-success { background-color: #4CAF50; color: white; }
-        .btn-danger { background-color: #F44336; color: white; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: capitalize; }
+        .status-confirmed { background-color: #E8F5E9; color: #388E3C; }
+        .status-pending { background-color: #FFF8E1; color: #FFA000; }
+        .status-cancelled { background-color: #FFEBEE; color: #D32F2F; }
+        .status-completed { background-color: #E8EAF6; color: #303F9F; }
+        .btn { padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; font-size: 12px; text-decoration: none; display: inline-block; }
+        .btn-primary { background-color: #2196F3; color: white; }
     </style>
 </head>
 <body>
@@ -39,54 +43,52 @@
         <ul class="sidebar-nav">
             <li><a href="{% url 'management:admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="{% url 'management:turf_requests' %}"><i class="fas fa-clipboard-check"></i> Turf Requests</a></li>
-            <li><a href="{% url 'management:manage_users' %}" class="active"><i class="fas fa-users-cog"></i> Manage Users</a></li>
+            <li><a href="{% url 'management:manage_users' %}"><i class="fas fa-users-cog"></i> Manage Users</a></li>
             <li><a href="{% url 'management:manage_turfs' %}"><i class="fas fa-map-marked-alt"></i> Manage Turfs</a></li>
-            <li><a href="{% url 'management:manage_bookings' %}"><i class="fas fa-calendar-check"></i> Monitor Bookings</a></li>
+            <li><a href="{% url 'management:manage_bookings' %}" class="active"><i class="fas fa-calendar-check"></i> Monitor Bookings</a></li>
             <li><a href="#"><i class="fas fa-credit-card"></i> Payment Management</a></li>
         </ul>
     </aside>
 
     <main class="main-content">
-        <h1 class="header">Manage Users</h1>
+        <h1 class="header">Monitor All Bookings</h1>
         <div class="content-card">
+            <form method="GET" class="filter-bar">
+                <input type="text" name="q" placeholder="Search by Booking ID, Turf, or User..." value="{{ search_query }}">
+                <select name="status">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                </select>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 15px;">Filter</button>
+            </form>
             <table>
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>User Type</th>
+                        <th>ID</th>
+                        <th>Turf</th>
+                        <th>Player</th>
+                        <th>Date & Time</th>
+                        <th>Amount</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for u in users %}
+                    {% for booking in bookings %}
                     <tr>
-                        <td><strong>{{ u.username }}</strong></td>
-                        <td>{{ u.email }}</td>
-                        <td>{{ u.get_user_type_display }}</td>
-                        <td>
-                            {% if u.is_active %}
-                                <span class="status-badge status-active">Active</span>
-                            {% else %}
-                                <span class="status-badge status-blocked">Blocked</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form action="{% url 'management:toggle_user_status' u.id %}" method="POST">
-                                {% csrf_token %}
-                                {% if u.is_active %}
-                                    <button type="submit" class="btn btn-danger">Block</button>
-                                {% else %}
-                                    <button type="submit" class="btn btn-success">Unblock</button>
-                                {% endif %}
-                            </form>
-                        </td>
+                        <td><strong>#BK-{{ booking.id }}</strong></td>
+                        <td>{{ booking.turf.name }}</td>
+                        <td>{{ booking.user.username }}</td>
+                        <td>{{ booking.start_time|date:"d M Y, P" }}</td>
+                        <td>₹{{ booking.amount|floatformat:0 }}</td>
+                        <td><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                        <td><a href="{% url 'management:booking_detail_admin' booking.id %}" class="btn btn-primary">View</a></td>
                     </tr>
                     {% empty %}
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 30px;">No users found.</td>
-                    </tr>
+                    <tr><td colspan="7" style="text-align: center; padding: 30px;">No bookings found.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

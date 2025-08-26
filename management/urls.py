@@ -10,4 +10,8 @@ urlpatterns = [
     path('turf-requests/<int:turf_id>/manage/', views.manage_turf_request_view, name='manage_turf_request'),
     path('manage-users/', views.manage_users_view, name='manage_users'),
     path('manage-users/<int:user_id>/toggle-status/', views.toggle_user_status_view, name='toggle_user_status'),
+    path('manage-turfs/', views.manage_turfs_view, name='manage_turfs'),
+    path('monitor-bookings/', views.manage_bookings_view, name='manage_bookings'),
+    path('monitor-bookings/<int:booking_id>/', views.booking_detail_admin_view, name='booking_detail_admin'),
+    
 ]
