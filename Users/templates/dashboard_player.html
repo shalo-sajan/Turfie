@@ -41,9 +41,8 @@
                     <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
                     <li><a href="{% url 'users:my_bookings' %}"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
                     <li><a href="{% url 'turfs:turf_list' %}"><i class="fas fa-map-marked-alt"></i> Find Turfs</a></li>
-                    <li><a href="#"><i class="fas fa-trophy"></i> Rewards</a></li>
                     <li><a href="#"><i class="fas fa-wallet"></i> Payments</a></li>
-                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="{% url 'users:logout' %}"><i class="fas fa-heart"></i> Favorites</a></li>
                     <li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
@@ -56,7 +55,7 @@
                     <p>Ready for your next game? Book a turf now.</p>
                 </div>
                 <div class="reward-points">
-                    <i class="fas fa-coins"></i>
+                    <i class="fas fa-search"></i>
                     {{ user.reward_points|default:0 }} Points
                 </div>
             </section>
