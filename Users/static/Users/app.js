@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // A single event listener on the main content area
+    // A single event listener on the main content area for efficiency
     const mainContent = document.getElementById('main-content');
     
     if (mainContent) {

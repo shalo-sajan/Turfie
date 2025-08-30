@@ -13,4 +13,7 @@ urlpatterns = [
     path('player-dashboard/', views.dashboard_player, name='dashboard_player'),
     path('logout/', views.logout_view, name='logout'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
+        path('favorites/', views.favorites_view, name='favorites'),
+    path('toggle-favorite/<int:turf_id>/', views.toggle_favorite_view, name='toggle_favorite'),
+    path('edit-profile/', views.edit_profile_view, name='edit_profile'),
 ]

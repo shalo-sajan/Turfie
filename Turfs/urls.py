@@ -13,4 +13,7 @@ urlpatterns = [
     path('bookings/<int:booking_id>/', views.booking_detail_view, name='booking_detail'),
     path('bookings/<int:booking_id>/manage/', views.manage_booking_view, name='manage_booking'),
     path('bookings/<int:booking_id>/receipt/', views.booking_receipt_pdf_view, name='booking_receipt'),
+        # --- Player-Facing Views ---
+    path('search/', views.turf_search_view, name='turf_search'),
+    path('<int:turf_id>/', views.turf_detail_view, name='turf_detail'),
 ]

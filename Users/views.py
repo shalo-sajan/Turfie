@@ -1,6 +1,6 @@
 # users/views.py
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -9,11 +9,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Avg
 from django.utils import timezone
-from Turfs.models import Booking, Turf
-
-# Import your models from your apps
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST # ✅ Import require_POST
 from .models import User
-from Turfs.models import Turf, Booking # Assuming your models are in the 'Turfs' app
+from Turfs.models import Turf, Booking
+from .forms import UserProfileForm
+
 
 class register(View):
     template_name = 'register.html'
@@ -157,7 +158,7 @@ def dashboard_player(request):
     upcoming_bookings = Booking.objects.filter(
         user=request.user,
         start_time__gte=now
-    ).select_related('turf').order_by('start_time')[:2]
+    ).select_related('turf').order_by('start_time')[:10]
     
     
 
@@ -165,7 +166,7 @@ def dashboard_player(request):
     recommended_turfs = Turf.objects.filter(
         approval_status='approved', 
         owner__is_active=True
-    ).order_by('-rating')[:3]
+    ).order_by('-rating')[:10]
     
     context = {
         'user': request.user,
@@ -199,3 +200,36 @@ def my_bookings_view(request):
         'past_bookings': past_bookings,
     }
     return render(request, 'users/my_bookings.html', context)
+
+
+@login_required
+def favorites_view(request):
+    favorite_turfs = request.user.favorites.all()
+    context = {'favorite_turfs': favorite_turfs}
+    return render(request, 'users/favorites.html', context)
+
+@login_required
+@require_POST # Ensures this can only be called via POST
+def toggle_favorite_view(request, turf_id):
+    turf = get_object_or_404(Turf, id=turf_id)
+    if turf in request.user.favorites.all():
+        request.user.favorites.remove(turf)
+        is_favorite = False
+    else:
+        request.user.favorites.add(turf)
+        is_favorite = True
+    return JsonResponse({'is_favorite': is_favorite})
+
+@login_required
+def edit_profile_view(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('users:edit_profile')
+    else:
+        form = UserProfileForm(instance=request.user)
+    
+    context = {'form': form}
+    return render(request, 'users/edit_profile.html', context)

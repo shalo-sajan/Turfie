@@ -11,11 +11,16 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
+from django.db.models import Q
 import qrcode
 import io
 import base64
 
 # --- NEW BOOKING MANAGEMENT VIEW ---
+try:
+    from weasyprint import HTML
+except OSError:
+    HTML = None
 
 @require_POST # This decorator ensures this view only accepts POST requests
 @login_required
@@ -253,3 +258,31 @@ def booking_receipt_pdf_view(request, booking_id):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="receipt_BK-{booking.id}.pdf"'
     return response
+
+
+@login_required
+def turf_search_view(request):
+    turfs = Turf.objects.filter(approval_status='approved', owner__is_active=True)
+    query = request.GET.get('q')
+    sort_by = request.GET.get('sort')
+
+    if query:
+        turfs = turfs.filter(
+            Q(name__icontains=query) |
+            Q(city__icontains=query) |
+            Q(district__icontains=query)
+        )
+
+    if sort_by == 'price_asc':
+        turfs = turfs.order_by('price_per_hour')
+    elif sort_by == 'price_desc':
+        turfs = turfs.order_by('-price_per_hour')
+    elif sort_by == 'rating':
+        turfs = turfs.order_by('-rating')
+
+    context = {
+        'turfs': turfs,
+        'query': query or "",
+        'sort_by': sort_by or "",
+    }
+    return render(request, 'turfs/turf_search.html', context)

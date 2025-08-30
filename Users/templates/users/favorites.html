@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorites - Turfie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
+            --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); color: var(--dark); }
+        .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
+        .logo i { margin-right: 10px; }
+        .back-link { font-weight: 600; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .page-header { margin: 30px 0; }
+        .page-title { font-size: 32px; font-weight: 700; }
+        
+        .turfs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .turf-card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-sm); transition: all 0.3s ease; }
+        .turf-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .turf-image { height: 150px; width: 100%; object-fit: cover; }
+        .turf-content { padding: 15px; }
+        .turf-content h3 { font-size: 18px; margin-bottom: 5px; }
+        .turf-rating, .turf-location, .turf-price { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 14px; }
+        .turf-location { color: var(--gray); }
+        .turf-rating { color: var(--secondary); }
+        .turf-price { font-weight: 600; }
+        .turf-actions { display: flex; justify-content: space-between; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline .fa-heart { transition: all 0.2s ease; }
+        .btn-outline .fas.fa-heart { color: var(--secondary); }
+        .no-results { text-align: center; padding: 50px; background: var(--white); border-radius: 12px; grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="{% url 'users:dashboard_player' %}" class="logo"><i class="fas fa-futbol"></i> Turfie</a>
+            <a href="{% url 'users:dashboard_player' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1 class="page-title">My Favorite Turfs</h1>
+        </div>
+        <div class="turfs-grid" id="main-content">
+            {% for turf in favorite_turfs %}
+            <div class="turf-card" data-turf-id="{{ turf.id }}">
+                <img src="{{ turf.main_image.url }}" alt="{{ turf.name }}" class="turf-image">
+                <div class="turf-content">
+                    <h3>{{ turf.name }}</h3>
+                    <div class="turf-rating"><i class="fas fa-star"></i> <span>{{ turf.rating|floatformat:1 }} ({{ turf.review_count }} reviews)</span></div>
+                    <div class="turf-location"><i class="fas fa-map-marker-alt"></i> <span>{{ turf.city }}, {{ turf.district }}</span></div>
+                    <div class="turf-price">₹{{ turf.price_per_hour }}/hour</div>
+                    <div class="turf-actions">
+                        <button class="btn btn-outline btn-favorite" aria-label="Remove from favorites">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <a href="{% url 'turfs:turf_detail' turf.id %}" class="btn btn-primary">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-results">
+                <h3>You haven't favorited any turfs yet.</h3>
+                <p>Click the heart icon on a turf to add it to your favorites.</p>
+                <a href="{% url 'turfs:turf_search' %}" class="btn btn-primary" style="margin-top: 20px;">Find Turfs</a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+    <script>
+        // JavaScript for handling favorite button clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.getElementById('main-content');
+            
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            if (mainContent) {
+                mainContent.addEventListener('click', (event) => {
+                    const favoriteButton = event.target.closest('.btn-favorite');
+                    if (favoriteButton) {
+                        event.preventDefault();
+                        const turfCard = favoriteButton.closest('.turf-card');
+                        const turfId = turfCard.dataset.turfId;
+                        
+                        fetch(`/users/toggle-favorite/${turfId}/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // On the favorites page, we just remove the card
+                            if (!data.is_favorite) {
+                                turfCard.style.transition = 'opacity 0.5s ease';
+                                turfCard.style.opacity = '0';
+                                setTimeout(() => turfCard.remove(), 500);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

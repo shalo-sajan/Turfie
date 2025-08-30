@@ -7,128 +7,343 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turfie - Player Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'Users/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Swiper.js CSS for Carousels -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <style>
+        :root {
+            --primary: #00C853; 
+            --primary-dark: #009624; 
+            --primary-light: rgba(0, 200, 83, 0.1);
+            --secondary: #FF6D00; 
+            --secondary-light: rgba(255, 109, 0, 0.1);
+            --dark: #1a1d21; 
+            --gray: #8a8d93; 
+            --light-gray: #f5f7fa; 
+            --white: #FFFFFF;
+            --danger: #ff4d4f; 
+            --danger-light: rgba(255, 77, 79, 0.1);
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08); 
+            --shadow-md: 0 6px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 15px 35px rgba(0,0,0,0.1);
+            
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            --sidebar-width: 280px;
+            --border-radius: 16px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--light-gray);
+            color: var(--dark); 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container { display: flex; }
+
+        .sidebar { width: var(--sidebar-width); background: var(--white); border-right: 1px solid #e0e0e0; padding: 30px 0; height: 100vh; position: fixed; left: 0; top: 0; z-index: 100; display: flex; flex-direction: column; }
+        .logo-container { padding: 0 30px 30px; border-bottom: 1px solid #eee; margin-bottom: 30px; }
+        .logo { font-size: 28px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
+        .logo i { margin-right: 12px; font-size: 32px; }
+        .sidebar-menu { list-style: none; flex-grow: 1; }
+        .sidebar-menu li { margin-bottom: 5px; padding: 0 20px; }
+        .sidebar-menu a { display: flex; align-items: center; padding: 15px 20px; border-radius: 12px; color: var(--dark); text-decoration: none; font-weight: 500; transition: var(--transition); }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: var(--primary-light); color: var(--primary-dark); }
+        .sidebar-menu a i { margin-right: 15px; width: 20px; text-align: center; font-size: 20px; }
+        
+        .page-wrapper { flex-grow: 1; margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 30px; }
+        
+        .welcome-banner { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); border-radius: var(--border-radius); padding: 25px 30px; margin-bottom: 30px; box-shadow: var(--shadow-lg); display: flex; justify-content: space-between; align-items: center; }
+        .welcome-text h1 { font-size: 28px; margin-bottom: 8px; font-weight: 700; }
+        .user-menu { display: flex; align-items: center; gap: 15px; }
+        .user-profile { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--white); transition: var(--transition); padding: 10px 20px; border-radius: 50px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .user-profile:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.5); }
+        .notification-btn { position: relative; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 18px; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); transition: var(--transition); }
+        .notification-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+        .notification-badge { position: absolute; top: -5px; right: -5px; background: var(--secondary); color: var(--white); width: 22px; height: 22px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 2px solid var(--primary-dark); }
+        
+        .section { margin-top: 40px; }
+        .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .section-title h2 { font-size: 24px; }
+        .section-title a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        
+        .swiper { width: 100%; padding-bottom: 50px; }
+        .swiper-slide { width: 340px; }
+        .swiper-button-next, .swiper-button-prev { color: var(--primary); --swiper-navigation-size: 30px; }
+
+        .booking-card, .turf-card { background: var(--white); border-radius: var(--border-radius); box-shadow: var(--shadow-sm); transition: var(--transition); overflow: hidden; height: 100%; display: flex; flex-direction: column; }
+        .booking-card:hover, .turf-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        
+        .booking-header { display: flex; justify-content: space-between; padding: 20px 20px 0; }
+        .booking-id { font-size: 13px; color: var(--gray); }
+        .booking-status { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .booking-details { padding: 15px 20px; flex-grow: 1; }
+        .booking-details h3 { font-size: 18px; margin-bottom: 8px; }
+        .booking-details p { color: var(--gray); font-size: 14px; margin-bottom: 12px; }
+        .booking-time { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .booking-actions { display: flex; gap: 12px; padding: 0 20px 20px; }
+        
+        .turf-image { height: 180px; width: 100%; object-fit: cover; }
+        .turf-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .turf-content h3 { font-size: 18px; margin-bottom: 10px; }
+        .turf-meta-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; }
+        .turf-rating { color: var(--secondary); }
+        .turf-location { color: var(--gray); }
+        .turf-price { font-weight: 600; margin-top: auto; }
+        .turf-actions { display: flex; justify-content: space-between; margin-top: 15px; align-items: center; gap: 15px; }
+
+        .btn { padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; flex: 1; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-favorite { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc; color: var(--gray); transition: var(--transition); flex: 0 0 auto; background-color: transparent; }
+        .btn-favorite .fas.fa-heart { color: var(--danger); }
+        .btn-favorite:hover, .btn-favorite:focus { border-color: var(--danger); background-color: var(--danger-light); }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: var(--white); padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; }
+        .modal-content h3 { font-size: 22px; margin-bottom: 10px; }
+        .modal-content p { color: var(--gray); margin-bottom: 25px; }
+        .modal-actions { display: flex; gap: 15px; }
+        .modal-actions .btn { flex: 1; }
+        .status-confirmed { background: rgba(76,175,80,0.1); color: #2E7D32; }
+        .status-pending { background: rgba(255,152,0,0.1); color: #F57C00; }
+        .status-cancelled { background: rgba(244,67,54,0.1); color: #D32F2F; }
+        .empty-state { text-align: center; padding: 40px; color: var(--gray); }
+    </style>
 </head>
 <body>
-
-    <header class="header">
-        <div class="container">
-            <nav class="nav">
-                <a href="#" class="logo">
-                    <i class="fas fa-futbol"></i>
-                    Turfie
-                </a>
-                <div class="user-menu">
-                    <button class="notification-btn" aria-label="View notifications">
-                        <i class="fas fa-bell"></i>
-                        {% if notification_count > 0 %}
-                            <span class="notification-badge">{{ notification_count }}</span>
-                        {% endif %}
-                    </button>
-                    <div class="user-profile">
-                        <img src="{{ user.profile_picture.url|default:'/static/images/default-avatar.png' }}" alt="{{ user.username }}'s avatar" class="user-avatar">
-                        <span>{{ user.username }}</span>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </header>
-
-    <div class="container dashboard">
+    <div class="app-container">
         <aside class="sidebar">
+            <div class="logo-container">
+                <a href="{% url 'users:dashboard_player' %}" class="logo"><i class="fas fa-futbol"></i> <span>Turfie</span></a>
+            </div>
             <nav>
                 <ul class="sidebar-menu">
-                    <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="{% url 'users:my_bookings' %}"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
-                    <li><a href="{% url 'turfs:turf_list' %}"><i class="fas fa-map-marked-alt"></i> Find Turfs</a></li>
-                    <li><a href="#"><i class="fas fa-wallet"></i> Payments</a></li>
-                    <li><a href="{% url 'users:logout' %}"><i class="fas fa-heart"></i> Favorites</a></li>
-                    <li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    <li><a href="{% url 'users:dashboard_player' %}" class="active"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'users:my_bookings' %}"><i class="fas fa-calendar-alt"></i> <span>My Bookings</span></a></li>
+                    <li><a href="{% url 'turfs:turf_search' %}"><i class="fas fa-search"></i> <span>Find Turfs</span></a></li>
+                    <li><a href="{% url 'users:favorites' %}"><i class="fas fa-heart"></i> <span>Favorites</span></a></li>
+                    <li><a href="#"><i class="fas fa-wallet"></i> <span>Payments</span></a></li>
+                    <li><a href="{% url 'users:edit_profile' %}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                    <li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
                 </ul>
             </nav>
         </aside>
 
-        <main class="main-content" id="main-content">
-            <section class="welcome-banner" aria-labelledby="welcome-heading">
-                <div class="welcome-text">
-                    <h1 id="welcome-heading">Welcome back, {{ user.first_name|default:user.username }}!</h1>
-                    <p>Ready for your next game? Book a turf now.</p>
-                </div>
-                <div class="reward-points">
-                    <i class="fas fa-search"></i>
-                    {{ user.reward_points|default:0 }} Points
-                </div>
-            </section>
+        <div class="page-wrapper">
+            <main class="main-content" id="main-content">
+                <section class="welcome-banner">
+                    <div class="welcome-text">
+                        <h1>Welcome back, {{ user.first_name|default:user.username }}!</h1>
+                        <p>Ready for your next game? Find the perfect turf now.</p>
+                    </div>
+                    <div class="user-menu">
+                        <button class="notification-btn" aria-label="View notifications">
+                            <i class="fas fa-bell"></i>
+                            {% if notification_count > 0 %}<span class="notification-badge">{{ notification_count }}</span>{% endif %}
+                        </button>
+                        <a href="{% url 'users:edit_profile' %}" class="user-profile">
+                            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'Users/images/default-avatar.png' %}{% endif %}" alt="{{ user.username }}'s avatar" class="user-avatar">
+                            <span>{{ user.username }}</span>
+                        </a>
+                    </div>
+                </section>
 
-<!-- Upcoming Bookings -->
-<section aria-labelledby="bookings-heading">
-    <div class="section-title">
-        <h2 id="bookings-heading">Upcoming Bookings</h2>
-        <a href="{% url 'users:my_bookings' %}">View All</a>
+                <section class="section">
+                    <div class="section-title">
+                        <h2>Upcoming Bookings</h2>
+                        <a href="{% url 'users:my_bookings' %}">View All</a>
+                    </div>
+                    <!-- ✅ Corrected class name -->
+                    <div class="swiper" id="bookings-carousel">
+                        <div class="swiper-wrapper">
+                            {% for booking in upcoming_bookings %}
+                            <div class="swiper-slide">
+                                <div class="booking-card">
+                                    <div class="booking-header">
+                                        <span class="booking-id">#BK-{{ booking.id }}</span>
+                                        <span class="booking-status status-{{ booking.status|lower }}">{{ booking.get_status_display }}</span>
+                                    </div>
+                                    <div class="booking-details">
+                                        <h3>{{ booking.turf.name }}</h3>
+                                        <p>{{ booking.turf.description|truncatewords:7 }}</p>
+                                        <div class="booking-time">
+                                            <i class="fas fa-calendar-day"></i>
+                                            {{ booking.start_time|date:"D, M d" }}, {{ booking.start_time|time:"P" }}
+                                        </div>
+                                    </div>
+                                    <div class="booking-actions">
+                                        <a href="{% url 'turfs:booking_detail' booking.id %}" class="btn btn-primary">View Details</a>
+                                        <button class="btn btn-danger cancel-btn" data-booking-id="{{ booking.id }}" 
+                                            {% if booking.status == 'cancelled' %}disabled{% endif %}>
+                                            <i class="fas fa-times"></i> 
+                                            {% if booking.status == 'cancelled' %}Cancelled{% else %}Cancel{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="swiper-slide">
+                                <div class="empty-state">You have no upcoming bookings.</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-title">
+                        <h2>Recommended Turfs</h2>
+                        <a href="{% url 'turfs:turf_search' %}">Explore More</a>
+                    </div>
+                    <!-- ✅ Corrected class name -->
+                    <div class="swiper" id="turfs-carousel">
+                        <div class="swiper-wrapper">
+                            {% for turf in recommended_turfs %}
+                            <div class="swiper-slide">
+                                <div class="turf-card" data-turf-id="{{ turf.id }}">
+                                    <img src="{{ turf.main_image.url }}" alt="{{ turf.name }}" class="turf-image">
+                                    <div class="turf-content">
+                                        <h3>{{ turf.name }}</h3>
+                                        <div class="turf-meta-item turf-rating"><i class="fas fa-star"></i> <span>{{ turf.rating|floatformat:1 }}</span></div>
+                                        <div class="turf-meta-item turf-location"><i class="fas fa-map-marker-alt"></i> <span>{{ turf.city }}, {{ turf.district }}</span></div>
+                                        <div class="turf-meta-item turf-price"><strong>₹{{ turf.price_per_hour|floatformat:0 }}</strong>/hour</div>
+                                        <div class="turf-actions">
+                                            <a href="{% url 'turfs:turf_detail' turf.id %}" class="btn btn-primary">Book Now</a>
+                                            <button class="btn btn-favorite" aria-label="Toggle favorite">
+                                                <i class="{% if turf in user.favorites.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
-    <div class="bookings-grid">
-        
-        {% for booking in upcoming_bookings %}
-        <div class="booking-card">
-            <div class="booking-header">
-                <span class="booking-id">#BK-{{ booking.id }}</span>
-                <span class="booking-status status-{{ booking.status|lower }}">{{ booking.get_status_display }}</span>
-            </div>
-            <div class="booking-details">
-                <h3>{{ booking.turf.name }}</h3>
-                <p>{{ booking.turf.description|truncatewords:7 }}</p>
-                <div class="booking-time">
-                    <i class="fas fa-calendar-day"></i>
-                    {{ booking.start_time|date:"D, M d, P" }} - {{ booking.end_time|date:"P" }}
-                </div>
-            </div>
-            <div class="booking-actions">
-                <a href="{% url 'turfs:booking_detail' booking.id %}" class="btn btn-primary">View Details</a>
-                <a href="#" class="btn btn-outline">Cancel</a> <!-- Placeholder for cancel functionality -->
+
+    <!-- Cancellation Modal -->
+    <div id="cancel-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Cancel Booking?</h3>
+            <p>Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="modal-close-btn" class="btn btn-outline">Keep Booking</button>
+                <button id="modal-confirm-btn" class="btn btn-danger">Yes, Cancel</button>
             </div>
         </div>
-        {% empty %}
-        <p>You have no upcoming bookings. <a href="#">Time to play!</a></p>
-        {% endfor %}
-
     </div>
-</section>
+    
+    {% for booking in upcoming_bookings %}
+        <form id="cancel-form-{{ booking.id }}" action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cancel">
+        </form>
+    {% endfor %}
 
-            <section aria-labelledby="turfs-heading">
-                <div class="section-title">
-                    <h2 id="turfs-heading">Recommended Turfs Near You</h2>
-                    <a href="#">Explore More</a>
-                </div>
-                <div class="turfs-grid">
-                    {% for turf in recommended_turfs %}
-                    <div class="turf-card" data-turf-id="{{ turf.id }}">
-                        <img src="{{ turf.main_image.url }}" alt="{{ turf.name }}" class="turf-image">
-                        <div class="turf-content">
-                            <h3>{{ turf.name }}</h3>
-                            <div class="turf-rating">
-                                <i class="fas fa-star"></i>
-                                <span>{{ turf.rating }} ({{ turf.review_count }} reviews)</span>
-                            </div>
-                            <div class="turf-location">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>{{ turf.city }}, {{ turf.district }}</span>
-                            </div>
-                            <div class="turf-price">₹{{ turf.price_per_hour }}/hour</div>
-                            <div class="turf-actions">
-                                <button class="btn btn-outline btn-favorite" aria-label="Add to favorites">
-                                    <i class="far fa-heart"></i>
-                                </button>
-                                <a href="{% url 'turfs:turf_detail' turf.id %}" class="btn btn-primary">Book Now</a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
-        </main>
-    </div>
+    <!-- Swiper.js Script -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.querySelector('.main-content');
+            const cancelModal = document.getElementById('cancel-modal');
+            let bookingIdToCancel = null;
 
-    <script src="{% static 'Users/app.js' %}"></script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
 
+            if (mainContent) {
+                mainContent.addEventListener('click', (event) => {
+                    const favoriteButton = event.target.closest('.btn-favorite');
+                    const cancelButton = event.target.closest('.cancel-btn');
+
+                    if (favoriteButton) {
+                        event.preventDefault();
+                        const turfId = favoriteButton.closest('.turf-card').dataset.turfId;
+                        
+                        fetch(`/users/toggle-favorite/${turfId}/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const icon = favoriteButton.querySelector('.fa-heart');
+                            icon.classList.toggle('fas', data.is_favorite);
+                            icon.classList.toggle('far', !data.is_favorite);
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                    
+                    if (cancelButton) {
+                        bookingIdToCancel = cancelButton.dataset.bookingId;
+                        cancelModal.style.display = 'flex';
+                    }
+                });
+            }
+
+            if (cancelModal) {
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+                const closeBtn = document.getElementById('modal-close-btn');
+
+                closeBtn.addEventListener('click', () => { cancelModal.style.display = 'none'; });
+                confirmBtn.addEventListener('click', () => {
+                    if (bookingIdToCancel) {
+                        const form = document.getElementById(`cancel-form-${bookingIdToCancel}`);
+                        if (form) form.submit();
+                    }
+                });
+                window.addEventListener('click', (event) => {
+                    if (event.target === cancelModal) cancelModal.style.display = 'none';
+                });
+            }
+
+            // Initialize Swiper Carousels
+            new Swiper('#bookings-carousel', {
+                slidesPerView: 'auto',
+                spaceBetween: 25,
+                navigation: {
+                    nextEl: '#bookings-carousel .swiper-button-next',
+                    prevEl: '#bookings-carousel .swiper-button-prev',
+                },
+            });
+
+            new Swiper('#turfs-carousel', {
+                slidesPerView: 'auto',
+                spaceBetween: 25,
+                navigation: {
+                    nextEl: '#turfs-carousel .swiper-button-next',
+                    prevEl: '#turfs-carousel .swiper-button-prev',
+                },
+            });
+        });
+    </script>
 </body>
 </html>
+

@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Turf - Turfie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
+            --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); color: var(--dark); }
+        .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
+        .logo i { margin-right: 10px; }
+        .back-link { font-weight: 600; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        
+        .search-container { display: flex; gap: 30px; padding: 30px 0; align-items: flex-start; }
+        .filters-sidebar { flex: 0 0 260px; background: var(--white); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm); }
+        .filters-sidebar h2 { font-size: 20px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .filter-group { margin-bottom: 20px; }
+        .filter-group label { font-weight: 600; margin-bottom: 8px; display: block; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        
+        .results-main { flex: 1; }
+        .search-header { margin-bottom: 20px; }
+        .search-bar { display: flex; }
+        .search-bar input { flex-grow: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px 0 0 6px; font-size: 16px; }
+        .search-bar button { padding: 0 20px; border: none; background: var(--primary); color: white; cursor: pointer; border-radius: 0 6px 6px 0; }
+
+        .turfs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .turf-card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-sm); transition: all 0.3s ease; }
+        .turf-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .turf-image { height: 150px; width: 100%; object-fit: cover; }
+        .turf-content { padding: 15px; }
+        .turf-content h3 { font-size: 18px; margin-bottom: 5px; }
+        .turf-rating, .turf-location, .turf-price { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 14px; }
+        .turf-location { color: var(--gray); }
+        .turf-rating { color: var(--secondary); }
+        .turf-price { font-weight: 600; }
+        .turf-actions { display: flex; justify-content: space-between; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline .fa-heart { transition: all 0.2s ease; }
+        .btn-outline .fas.fa-heart { color: var(--secondary); }
+        .no-results { text-align: center; padding: 50px; background: var(--white); border-radius: 12px; grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="{% url 'users:dashboard_player' %}" class="logo"><i class="fas fa-futbol"></i> Turfie</a>
+            <a href="{% url 'users:dashboard_player' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+    </header>
+
+    <div class="container search-container">
+        <aside class="filters-sidebar">
+            <h2>Sort & Filter</h2>
+            <form method="GET" action="{% url 'turfs:turf_search' %}">
+                <!-- Hidden search query field -->
+                <input type="hidden" name="q" value="{{ query|default:'' }}">
+                <div class="filter-group">
+                    <label for="sort">Sort By</label>
+                    <select id="sort" name="sort" class="form-control" onchange="this.form.submit()">
+                        <option value="">Default</option>
+                        <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+                    </select>
+                </div>
+            </form>
+        </aside>
+
+        <main class="results-main" id="main-content">
+            <div class="search-header">
+                <form method="GET" action="{% url 'turfs:turf_search' %}" class="search-bar">
+                    <input type="text" name="q" placeholder="Search by name, city, or district..." value="{{ query|default:'' }}" class="form-control">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <div class="turfs-grid">
+                {% for turf in turfs %}
+                <div class="turf-card" data-turf-id="{{ turf.id }}">
+                    <img src="{{ turf.main_image.url }}" alt="{{ turf.name }}" class="turf-image">
+                    <div class="turf-content">
+                        <h3>{{ turf.name }}</h3>
+                        <div class="turf-rating"><i class="fas fa-star"></i> <span>{{ turf.rating|floatformat:1 }} ({{ turf.review_count }} reviews)</span></div>
+                        <div class="turf-location"><i class="fas fa-map-marker-alt"></i> <span>{{ turf.city }}, {{ turf.district }}</span></div>
+                        <div class="turf-price">₹{{ turf.price_per_hour }}/hour</div>
+                        <div class="turf-actions">
+                            <button class="btn btn-outline btn-favorite" aria-label="Add to favorites">
+                                <i class="{% if turf in user.favorites.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </button>
+                            <a href="{% url 'turfs:turf_detail' turf.id %}" class="btn btn-primary">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-results">
+                    <h3>No Turfs Found</h3>
+                    <p>Try adjusting your search query.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // JavaScript for handling favorite button clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.getElementById('main-content');
+            
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            if (mainContent) {
+                mainContent.addEventListener('click', (event) => {
+                    const favoriteButton = event.target.closest('.btn-favorite');
+                    if (favoriteButton) {
+                        event.preventDefault();
+                        const turfId = favoriteButton.closest('.turf-card').dataset.turfId;
+                        
+                        fetch(`/users/toggle-favorite/${turfId}/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const icon = favoriteButton.querySelector('.fa-heart');
+                            icon.classList.toggle('fas', data.is_favorite);
+                            icon.classList.toggle('far', !data.is_favorite);
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
