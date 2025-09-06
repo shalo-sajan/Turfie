@@ -1,193 +1,246 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Bookings - Turfie</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        :root {
-            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
-            --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
-            --danger: #ff4d4f; --danger-light: rgba(255, 77, 79, 0.1);
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
-            --transition: all 0.3s ease;
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); color: var(--dark); }
-        .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .nav { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
-        .logo i { margin-right: 10px; }
-        .back-link { font-weight: 600; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-        .main-content { padding: 40px 0; }
-        .page-header { margin-bottom: 30px; }
-        .page-title { font-size: 32px; font-weight: 700; }
-        .section-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
-        .bookings-list { display: flex; flex-direction: column; gap: 20px; }
-        .booking-card { background: var(--white); border-radius: 12px; box-shadow: var(--shadow-sm); display: flex; overflow: hidden; transition: var(--transition); }
-        .booking-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-        .booking-image { width: 220px; object-fit: cover; flex-shrink: 0; }
-        .booking-content { padding: 20px; flex: 1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .booking-details { flex-grow: 1; min-width: 300px; }
-        .booking-details h3 { font-size: 20px; margin-bottom: 5px; }
-        .booking-details p { color: var(--gray); margin-bottom: 15px; }
-        .booking-time { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .booking-actions { text-align: right; flex-shrink: 0; width: 180px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
-        .booking-amount { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-        .booking-status { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: capitalize; }
-        .status-confirmed { background: rgba(76,175,80,0.1); color: #2E7D32; }
-        .status-pending { background: rgba(255,152,0,0.1); color: #F57C00; }
-        .status-cancelled { background: rgba(244,67,54,0.1); color: var(--danger); }
-        .status-completed { background: rgba(63,81,181,0.1); color: #303F9F; }
-        .btn { padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: var(--transition); border: 1px solid var(--primary); background: transparent; color: var(--primary); text-decoration: none; display: inline-block; width: 100%; text-align: center; margin-top: 10px; }
-        .btn:hover { background: rgba(0,200,83,0.1); }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover { background-color: var(--primary-dark); }
-        .btn-danger { border-color: var(--danger); color: var(--danger); }
-        .btn-danger:hover { background: var(--danger-light); }
-        .empty-message { text-align: center; padding: 40px; background: var(--white); border-radius: 12px; }
-        
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .modal-content { background: var(--white); padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; }
-        .modal-content h3 { font-size: 22px; margin-bottom: 10px; }
-        .modal-content p { color: var(--gray); margin-bottom: 25px; }
-        .modal-actions { display: flex; gap: 15px; }
-        .modal-actions .btn { width: auto; flex: 1; }
     </style>
 </head>
-<body>
-    <header class="header">
-        <div class="container nav">
-            <a href="{% url 'users:dashboard_player' %}" class="logo"><i class="fas fa-futbol"></i> Turfie</a>
-            <a href="{% url 'users:dashboard_player' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-        </div>
-    </header>
+<body class="text-gray-800">
+    <div class="relative min-h-screen lg:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white border-r border-gray-100 w-72 h-full fixed top-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:flex flex-col">
+            <div class="p-6 border-b border-gray-100">
+                <a href="{% url 'users:dashboard_player' %}" class="flex items-center gap-3 text-3xl font-bold text-green-600">
+                    <i class="fas fa-futbol"></i>
+                    <span>Turfie</span>
+                </a>
+            </div>
+            <nav class="flex-grow p-4">
+                <ul class="space-y-2">
+                    <li><a href="{% url 'users:dashboard_player' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-home w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'users:my_bookings' %}" class="flex items-center gap-4 py-3 px-4 rounded-xl text-green-700 bg-green-100 font-semibold transition-all duration-300 transform hover:scale-105"><i class="fas fa-calendar-alt w-5 text-center"></i> <span>My Bookings</span></a></li>
+                    <li><a href="{% url 'turfs:turf_search' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-search w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Find Turfs</span></a></li>
+                    <li><a href="{% url 'users:favorites' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-heart w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Favorites</span></a></li>
+                    <li><a href="#" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-wallet w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Payments</span></a></li>
+                    <li><a href="{% url 'users:edit_profile' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-cog w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Settings</span></a></li>
+                    <li><a href="{% url 'users:logout' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-sign-out-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Logout</span></a></li>
+                </ul>
+            </nav>
+        </aside>
 
-    <main class="main-content">
-        <div class="container">
-            <div class="page-header"><h1 class="page-title">My Bookings</h1></div>
-
-            <section style="margin-bottom: 40px;">
-                <h2 class="section-title">Upcoming Bookings</h2>
-                <div class="bookings-list">
-                    {% for booking in upcoming_bookings %}
-                    <div class="booking-card">
-                        <img src="{% if booking.turf.main_image %}{{ booking.turf.main_image.url }}{% else %}https://placehold.co/220x200/E0E0E0/757575?text=No+Image{% endif %}" alt="{{ booking.turf.name }}" class="booking-image">
-                        <div class="booking-content">
-                            <div class="booking-details">
-                                <h3>{{ booking.turf.name }}</h3>
-                                <p>{{ booking.turf.city }}, {{ booking.turf.district }}</p>
-                                <div class="booking-time">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span>{{ booking.start_time|date:"D, d M Y" }} &middot; {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span>
+        <div class="flex-1 lg:ml-72">
+            <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-30 border-b border-gray-100">
+                 <div class="flex justify-between items-center p-4 sm:p-6 lg:p-8">
+                     <div class="flex items-center gap-4">
+                        <button id="menu-toggle" class="lg:hidden text-gray-600 text-2xl">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-2xl md:text-3xl font-bold">My Bookings</h1>
+                     </div>
+                     
+                    <div class="hidden sm:flex items-center gap-4">
+                        <a href="{% url 'users:edit_profile' %}" class="flex items-center gap-3 p-2 pr-4 rounded-full hover:bg-gray-100 transition-all duration-300">
+                            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'Users/images/default-avatar.png' %}{% endif %}" alt="{{ user.username }}'s avatar" class="w-9 h-9 rounded-full object-cover border-2 border-gray-200">
+                            <span class="font-semibold">{{ user.username }}</span>
+                        </a>
+                    </div>
+                 </div>
+            </header>
+            
+            <main class="p-4 sm:p-6 lg:p-8">
+                <!-- Upcoming Bookings Section -->
+                <section class="mb-12">
+                    <div class="flex justify-between items-center mb-6 border-l-4 border-green-500 pl-4">
+                        <h2 class="text-2xl font-bold">Upcoming</h2>
+                    </div>
+                    <div class="space-y-6">
+                        {% for booking in upcoming_bookings %}
+                        <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-gray-300/60 hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row overflow-hidden border border-gray-100">
+                            <img src="{% if booking.turf.main_image %}{{ booking.turf.main_image.url }}{% else %}https://placehold.co/400x300/E0E0E0/757575?text=No+Image{% endif %}" alt="{{ booking.turf.name }}" class="w-full md:w-60 h-48 object-cover">
+                            <div class="p-6 flex-grow flex flex-col sm:flex-row justify-between gap-6">
+                                <div class="flex-grow">
+                                    <h3 class="text-2xl font-bold text-gray-900">{{ booking.turf.name }}</h3>
+                                    <p class="text-gray-500 mt-1 mb-4"><i class="fas fa-map-marker-alt mr-2"></i>{{ booking.turf.city }}, {{ booking.turf.district }}</p>
+                                    <div class="flex items-center gap-2 text-gray-700 font-medium bg-green-50 p-3 rounded-lg">
+                                        <i class="fas fa-calendar-alt text-green-600"></i>
+                                        <span>{{ booking.start_time|date:"D, d M Y" }} &middot; {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="booking-actions">
-                                <div class="booking-amount">₹{{ booking.amount|floatformat:0 }}</div>
-                                <div class="booking-status status-{{ booking.status }}">{{ booking.get_status_display }}</div>
-                                <div style="display: flex; gap: 10px; width: 100%;">
-                                    <a href="{% url 'turfs:booking_detail' booking.id %}" class="btn btn-primary">Details</a>
-                                    {% if booking.status != 'cancelled' %}
-                                        <button class="btn btn-danger cancel-btn" data-booking-id="{{ booking.id }}">Cancel</button>
-                                    {% endif %}
+                                <div class="flex-shrink-0 w-full sm:w-48 text-left sm:text-right flex flex-row-reverse sm:flex-col items-center sm:items-end justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-gray-900 mb-1">₹{{ booking.amount|floatformat:0 }}</div>
+                                        <div class="text-xs font-bold py-1.5 px-3.5 rounded-full inline-block
+                                            {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                            {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                            {% else %}bg-red-100 text-red-800{% endif %}">
+                                            {{ booking.get_status_display|upper }}
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2 mt-0 sm:mt-4 w-full">
+                                        <a href="{% url 'turfs:booking_detail' booking.id %}" class="flex-1 text-center py-2.5 px-3 rounded-xl font-semibold bg-gray-800 text-white hover:bg-gray-900 transition-colors text-sm">Details</a>
+                                        {% if booking.status != 'cancelled' %}
+                                        <button class="flex-1 text-center py-2.5 px-3 rounded-xl font-semibold border border-red-200 text-red-600 hover:bg-red-50 transition-colors text-sm cancel-btn" data-booking-id="{{ booking.id }}">Cancel</button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {% empty %}
+                        <div class="text-center p-10 text-gray-500 bg-white border-2 border-dashed border-gray-300 rounded-2xl">
+                            <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="font-bold text-lg text-gray-700">No Upcoming Games</h3>
+                            <p class="text-sm">Time to <a href="{% url 'turfs:turf_search' %}" class="text-green-600 font-semibold hover:underline">find a turf</a> and get playing!</p>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% empty %}
-                    <div class="empty-message"><p>You have no upcoming bookings. <a href="{% url 'turfs:turf_search' %}">Find a turf to play!</a></p></div>
-                    {% endfor %}
-                </div>
-            </section>
+                </section>
 
-            <section>
-                <h2 class="section-title">Past Bookings</h2>
-                <div class="bookings-list">
-                    {% for booking in past_bookings %}
-                    <div class="booking-card">
-                        <img src="{% if booking.turf.main_image %}{{ booking.turf.main_image.url }}{% else %}https://placehold.co/220x200/E0E0E0/757575?text=No+Image{% endif %}" alt="{{ booking.turf.name }}" class="booking-image">
-                        <div class="booking-content">
-                            <div class="booking-details">
-                                <h3>{{ booking.turf.name }}</h3>
-                                <p>{{ booking.turf.city }}, {{ booking.turf.district }}</p>
-                                <div class="booking-time">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span>{{ booking.start_time|date:"D, d M Y" }} &middot; {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span>
+                <!-- Past Bookings Section -->
+                <section>
+                    <div class="flex justify-between items-center mb-6 border-l-4 border-gray-400 pl-4">
+                        <h2 class="text-2xl font-bold">Past</h2>
+                    </div>
+                    <div class="space-y-6">
+                        {% for booking in past_bookings %}
+                        <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 flex flex-col md:flex-row overflow-hidden border border-gray-100 opacity-80 hover:opacity-100 transition-opacity">
+                            <img src="{% if booking.turf.main_image %}{{ booking.turf.main_image.url }}{% else %}https://placehold.co/400x300/E0E0E0/757575?text=No+Image{% endif %}" alt="{{ booking.turf.name }}" class="w-full md:w-60 h-48 object-cover">
+                             <div class="p-6 flex-grow flex flex-col sm:flex-row justify-between gap-6">
+                                <div class="flex-grow">
+                                    <h3 class="text-2xl font-bold text-gray-900">{{ booking.turf.name }}</h3>
+                                    <p class="text-gray-500 mt-1 mb-4"><i class="fas fa-map-marker-alt mr-2"></i>{{ booking.turf.city }}, {{ booking.turf.district }}</p>
+                                    <div class="flex items-center gap-2 text-gray-700 font-medium bg-gray-100 p-3 rounded-lg">
+                                        <i class="fas fa-calendar-check text-gray-500"></i>
+                                        <span>{{ booking.start_time|date:"D, d M Y" }} &middot; {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 w-full sm:w-48 text-left sm:text-right flex flex-row-reverse sm:flex-col items-center sm:items-end justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-gray-900 mb-1">₹{{ booking.amount|floatformat:0 }}</div>
+                                        <div class="text-xs font-bold py-1.5 px-3.5 rounded-full inline-block
+                                            {% if booking.status == 'completed' %}bg-blue-100 text-blue-800
+                                            {% elif booking.status == 'cancelled' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-200 text-gray-800{% endif %}">
+                                            {{ booking.get_status_display|upper }}
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2 mt-0 sm:mt-4 w-full">
+                                        {% if booking.status != 'cancelled' %}
+                                            <a href="{% url 'turfs:booking_detail' booking.id %}" class="flex-1 text-center py-2.5 px-3 rounded-xl font-semibold bg-gray-800 text-white hover:bg-gray-900 transition-colors text-sm">Details</a>
+                                        {% else %}
+                                             <button class="flex-1 text-center py-2.5 px-3 rounded-xl font-semibold bg-gray-300 text-gray-500 cursor-not-allowed text-sm" disabled>Details</button>
+                                        {% endif %}
+                                
+                                        
+                                        <a href="{% url 'turfs:turf_detail' booking.turf.id %}" class="flex-1 text-center py-2.5 px-3 rounded-xl font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors text-sm">Book Again</a>
+                                    
+                                    </div>
                                 </div>
                             </div>
-                            <div class="booking-actions">
-                                <div class="booking-amount">₹{{ booking.amount|floatformat:0 }}</div>
-                                <div class="booking-status status-{{ booking.status }}">{{ booking.get_status_display }}</div>
-                                {% if booking.turf.is_available_for_booking %}
-                                    <a href="{% url 'turfs:turf_detail' booking.turf.id %}" class="btn">Book Again</a>
-                                {% else %}
-                                    <button class="btn" disabled title="This turf is not currently available for booking.">Book Again</button>
-                                {% endif %}
-                            </div>
                         </div>
+                        {% empty %}
+                        <div class="text-center p-10 text-gray-500 bg-white border-2 border-dashed border-gray-300 rounded-2xl">
+                             <p>You have no past bookings.</p>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% empty %}
-                    <div class="empty-message"><p>You have no past bookings.</p></div>
-                    {% endfor %}
-                </div>
-            </section>
+                </section>
+            </main>
         </div>
-    </main>
+    </div>
 
     <!-- Cancellation Modal -->
-    <div id="cancel-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Cancel Booking?</h3>
-            <p>Are you sure you want to cancel this booking? This action cannot be undone.</p>
-            <div class="modal-actions">
-                <button id="modal-close-btn" class="btn">Keep Booking</button>
-                <button id="modal-confirm-btn" class="btn btn-danger">Yes, Cancel</button>
+    <div id="cancel-modal" class="fixed inset-0 w-full h-full bg-black/60 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl text-center max-w-sm w-full shadow-xl transform transition-all scale-95 opacity-0" id="modal-content">
+            <h3 class="text-2xl font-bold mb-2">Cancel Booking?</h3>
+            <p class="text-gray-500 mb-6">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            <div class="flex gap-4">
+                <button id="modal-close-btn" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">Keep Booking</button>
+                <button id="modal-confirm-btn" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">Yes, Cancel</button>
             </div>
         </div>
     </div>
     
     {% for booking in upcoming_bookings %}
-        <form id="cancel-form-{{ booking.id }}" action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: none;">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="cancel">
-        </form>
+    <form id="cancel-form-{{ booking.id }}" action="{% url 'turfs:manage_booking' booking.id %}" method="POST" class="hidden">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="cancel">
+    </form>
     {% endfor %}
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.querySelector('main');
             const cancelModal = document.getElementById('cancel-modal');
-            const confirmBtn = document.getElementById('modal-confirm-btn');
-            const closeBtn = document.getElementById('modal-close-btn');
+            const modalContent = document.getElementById('modal-content');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
             let bookingIdToCancel = null;
 
-            document.querySelectorAll('.cancel-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    bookingIdToCancel = this.dataset.bookingId;
-                    cancelModal.style.display = 'flex';
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
                 });
+            }
+
+            mainContent.addEventListener('click', (event) => {
+                const cancelButton = event.target.closest('.cancel-btn');
+                if (cancelButton) {
+                    bookingIdToCancel = cancelButton.dataset.bookingId;
+                    cancelModal.classList.remove('hidden');
+                    cancelModal.classList.add('flex');
+                    setTimeout(() => {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                    }, 50);
+                }
             });
 
-            closeBtn.addEventListener('click', () => {
-                cancelModal.style.display = 'none';
-            });
+            if (cancelModal) {
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+                const closeBtn = document.getElementById('modal-close-btn');
 
-            confirmBtn.addEventListener('click', () => {
-                if (bookingIdToCancel) {
-                    const form = document.getElementById(`cancel-form-${bookingIdToCancel}`);
-                    if (form) {
-                        form.submit();
+                const closeModal = () => {
+                    modalContent.classList.add('scale-95', 'opacity-0');
+                    setTimeout(() => {
+                        cancelModal.classList.add('hidden');
+                        cancelModal.classList.remove('flex');
+                    }, 200);
+                };
+
+                closeBtn.addEventListener('click', closeModal);
+                
+                confirmBtn.addEventListener('click', () => {
+                    if (bookingIdToCancel) {
+                        const form = document.getElementById(`cancel-form-${bookingIdToCancel}`);
+                        if (form) form.submit();
                     }
-                }
-            });
+                });
 
-            window.addEventListener('click', (event) => {
-                if (event.target === cancelModal) {
-                    cancelModal.style.display = 'none';
-                }
-            });
+                window.addEventListener('click', (event) => {
+                    if (event.target === cancelModal) closeModal();
+                });
+            }
         });
     </script>
 </body>
 </html>
+

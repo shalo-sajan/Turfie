@@ -1,145 +1,196 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking #{{ booking.id }} - Turfie</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        :root {
-            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
-            --gray: #757575; --light-gray: #f5f7fa; --white: #FFFFFF;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
-            --transition: all 0.3s ease;
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); color: var(--dark); }
-        .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
-        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
-        .nav { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
-        .logo i { margin-right: 10px; }
-        .back-link { font-weight: 600; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-        .main-content { padding: 40px 0; }
-        .booking-container { background: var(--white); border-radius: 12px; box-shadow: var(--shadow-md); overflow: hidden; }
-        .booking-header { padding: 25px; border-bottom: 1px solid #eee; }
-        .booking-title { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
-        .booking-id { color: var(--gray); font-size: 14px; }
-        .booking-body { display: grid; grid-template-columns: 2fr 1fr; }
-        .booking-main-details { padding: 25px; }
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); }
-        .detail-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
-        .detail-item i { color: var(--primary); width: 20px; text-align: center; margin-top: 3px; }
-        .detail-item-content h4 { font-size: 16px; margin-bottom: 3px; }
-        .detail-item-content p { color: var(--gray); }
-        .booking-summary { background-color: #fafafa; padding: 25px; border-left: 1px solid #eee; }
-        .summary-item { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .summary-total { font-weight: 700; font-size: 20px; border-top: 1px solid #ddd; padding-top: 15px; }
-        .booking-status { padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: 700; text-transform: capitalize; text-align: center; }
-        .status-confirmed { background: rgba(76,175,80,0.1); color: #2E7D32; }
-        .status-pending { background: rgba(255,152,0,0.1); color: #F57C00; }
-        .status-cancelled { background: rgba(244,67,54,0.1); color: #D32F2F; }
-        .status-completed { background: rgba(63,81,181,0.1); color: #303F9F; }
-        .booking-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .btn { width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 16px; text-decoration: none; text-align: center; }
-        .btn-primary { background: var(--primary); color: var(--white); }
-        .btn-danger { background: #D32F2F; color: var(--white); }
-        .btn-outline { background: transparent; border: 1px solid var(--gray); color: var(--gray); }
     </style>
 </head>
-<body>
-    <header class="header">
-        <div class="container nav">
-            <a href="{% url 'users:dashboard_player' %}" class="logo"><i class="fas fa-futbol"></i> Turfie</a>
-            <a href="{{ request.META.HTTP_REFERER|default:request.user.get_dashboard_url }}" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+<body class="text-gray-800">
+    <!-- Clean Header without Sidebar -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-30 border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="{% url 'users:dashboard_player' %}" class="flex items-center gap-3 text-3xl font-bold text-green-600">
+                    <i class="fas fa-futbol"></i>
+                    <span>Turfie</span>
+                </a>
+                <a href="{{ request.META.HTTP_REFERER|default:request.user.get_dashboard_url }}" class="flex items-center gap-2 font-semibold text-gray-600 hover:text-green-600 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+            </div>
         </div>
     </header>
 
-    <main class="main-content">
-        <div class="container">
-            <div class="booking-container">
-                <div class="booking-header">
-                    <h1 class="booking-title">Booking Details</h1>
-                    <p class="booking-id">Booking ID: #BK-{{ booking.id }}</p>
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="booking-container bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+            <div class="booking-header p-6 sm:p-8 border-b border-gray-200">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="booking-title text-3xl font-extrabold text-gray-900">Booking Details</h1>
+                        <p class="booking-id text-gray-500 font-mono">ID: #BK-{{ booking.id }}</p>
+                    </div>
+                    <div class="booking-status text-sm font-bold py-2 px-4 rounded-full 
+                        {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
+                        {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ booking.get_status_display|upper }}
+                    </div>
                 </div>
-                <div class="booking-body">
-                    <div class="booking-main-details">
-                        <h2 class="section-title">Turf Information</h2>
-                        <div class="detail-item">
-                            <i class="fas fa-futbol"></i>
-                            <div class="detail-item-content">
-                                <h4>{{ booking.turf.name }}</h4>
-                                <p>{{ booking.turf.address_line_1 }}, {{ booking.turf.city }}</p>
+            </div>
+            <div class="booking-body grid grid-cols-1 md:grid-cols-3">
+                <div class="booking-main-details p-6 sm:p-8 md:col-span-2">
+                    <div class="space-y-8">
+                        <div>
+                            <h2 class="section-title text-lg font-bold text-gray-800 mb-4">Turf Information</h2>
+                            <div class="detail-item flex items-start gap-4">
+                                <i class="fas fa-futbol text-green-600 text-xl w-6 text-center mt-1"></i>
+                                <div class="detail-item-content">
+                                    <h4 class="font-semibold text-gray-900">{{ booking.turf.name }}</h4>
+                                    <p class="text-gray-500">{{ booking.turf.address_line_1 }}, {{ booking.turf.city }}</p>
+                                </div>
                             </div>
                         </div>
 
-                        <h2 class="section-title" style="margin-top: 30px;">Booking Schedule</h2>
-                        <div class="detail-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <div class="detail-item-content">
-                                <h4>{{ booking.start_time|date:"l, d F Y" }}</h4>
-                                <p>{{ booking.start_time|time:"g:i A" }} to {{ booking.end_time|time:"g:i A" }} ({{ booking.duration_hours }} hours)</p>
+                        <div>
+                            <h2 class="section-title text-lg font-bold text-gray-800 mb-4">Booking Schedule</h2>
+                            <div class="detail-item flex items-start gap-4">
+                                <i class="fas fa-calendar-alt text-green-600 text-xl w-6 text-center mt-1"></i>
+                                <div class="detail-item-content">
+                                    <h4 class="font-semibold text-gray-900">{{ booking.start_time|date:"l, d F Y" }}</h4>
+                                    <p class="text-gray-500">{{ booking.start_time|time:"g:i A" }} to {{ booking.end_time|time:"g:i A" }} ({{ booking.duration_hours }} hours)</p>
+                                </div>
                             </div>
                         </div>
                         
-                        <h2 class="section-title" style="margin-top: 30px;">Booked By</h2>
-                        <div class="detail-item">
-                            <i class="fas fa-user"></i>
-                            <div class="detail-item-content">
-                                <h4>{{ booking.user.username }}</h4>
-                                <p>{{ booking.user.email }}</p>
+                        <div>
+                            <h2 class="section-title text-lg font-bold text-gray-800 mb-4">Booked By</h2>
+                            <div class="detail-item flex items-start gap-4">
+                                <i class="fas fa-user text-green-600 text-xl w-6 text-center mt-1"></i>
+                                <div class="detail-item-content">
+                                    <h4 class="font-semibold text-gray-900">{{ booking.user.username }}</h4>
+                                    <p class="text-gray-500">{{ booking.user.email }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="booking-summary">
-                        <h2 class="section-title">Summary</h2>
-                        <div class="summary-item">
+                </div>
+                
+                <div class="booking-summary bg-gray-50 p-6 sm:p-8 md:border-l border-t md:border-t-0 border-gray-200">
+                    <h2 class="section-title text-lg font-bold text-gray-800 mb-4">Summary</h2>
+                    <div class="space-y-3 text-gray-600">
+                        <div class="summary-item flex justify-between">
                             <span>Base Price</span>
-                            <span>₹{{ booking.turf.price_per_hour|floatformat:0 }}/hr</span>
+                            <span class="font-medium text-gray-800">₹{{ booking.turf.price_per_hour|floatformat:0 }}/hr</span>
                         </div>
-                        <div class="summary-item">
+                        <div class="summary-item flex justify-between">
                             <span>Duration</span>
-                            <span>{{ booking.duration_hours }} hours</span>
+                            <span class="font-medium text-gray-800">{{ booking.duration_hours }} hours</span>
                         </div>
-                        <div class="summary-item summary-total">
-                            <span>Total Amount</span>
-                            <span>₹{{ booking.amount|floatformat:0 }}</span>
+                        <div class="summary-item summary-total flex justify-between items-center text-xl font-bold border-t border-gray-200 pt-4 mt-4">
+                            <span class="text-gray-900">Total Amount</span>
+                            <span class="text-green-600">₹{{ booking.amount|floatformat:0 }}</span>
                         </div>
+                    </div>
 
-                        <div style="margin-top: 30px;">
-                            <h2 class="section-title">Status</h2>
-                            <div class="booking-status status-{{ booking.status }}">{{ booking.get_status_display }}</div>
-                        </div>
-
-                        <div class="booking-actions">
-                            <!-- OWNER ACTIONS -->
-                            {% if request.user == booking.turf.owner and booking.status == 'pending' %}
-                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: contents;">
-                                    {% csrf_token %}
-                                    <button type="submit" name="action" value="confirm" class="btn btn-primary">Confirm Booking</button>
-                                </form>
-                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: contents;">
-                                    {% csrf_token %}
-                                    <button type="submit" name="action" value="reject" class="btn btn-danger">Reject Booking</button>
-                                </form>
-                            {% endif %}
-                            {% if booking.status == 'confirmed' or booking.status == 'completed' %}
-                                <a href="{% url 'turfs:booking_receipt' booking.id %}" target="_blank" class="btn btn-primary" style="margin-top: 10px;">
-                                    <i class="fas fa-receipt"></i> Generate Receipt
-                                </a>
-                            {% endif %}
-                            <!-- PLAYER ACTIONS -->
-                            {% if request.user == booking.user and booking.status == 'pending' or booking.status == 'confirmed' %}
-                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" style="display: contents;">
-                                    {% csrf_token %}
-                                    <button type="submit" name="action" value="cancel" class="btn btn-outline">Cancel Booking</button>
-                                </form>
-                            {% endif %}
-                        </div>
+                    <div class="booking-actions mt-8 space-y-3">
+                        <!-- OWNER ACTIONS -->
+                        {% if request.user == booking.turf.owner and booking.status == 'pending' %}
+                            <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" name="action" value="confirm" class="w-full py-3 px-4 rounded-xl font-semibold bg-green-600 text-white hover:bg-green-700 transition-all transform hover:scale-105 shadow-sm hover:shadow-lg">Confirm Booking</button>
+                            </form>
+                            <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" name="action" value="reject" class="w-full py-3 px-4 rounded-xl font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors">Reject Booking</button>
+                            </form>
+                        {% endif %}
+                        
+                        {% if booking.status == 'confirmed' or booking.status == 'completed' %}
+                            <a href="{% url 'turfs:booking_receipt' booking.id %}" target="_blank" class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold bg-gray-800 text-white hover:bg-gray-900 transition-colors">
+                                <i class="fas fa-receipt"></i> Generate Receipt
+                            </a>
+                        {% endif %}
+                        
+                        <!-- PLAYER ACTIONS -->
+                        {% if request.user == booking.user and booking.status == 'pending' or booking.status == 'confirmed' %}
+                            <button type="button" id="cancel-booking-btn" class="w-full py-3 px-4 rounded-xl font-semibold border border-red-200 text-red-600 hover:bg-red-50 transition-colors">Cancel Booking</button>
+                            <form id="cancel-booking-form" action="{% url 'turfs:manage_booking' booking.id %}" method="POST" class="hidden">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="cancel">
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Cancellation Modal -->
+    <div id="cancel-modal" class="fixed inset-0 w-full h-full bg-black/60 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl text-center max-w-sm w-full shadow-xl">
+            <h3 class="text-2xl font-bold mb-2 text-gray-900">Are you sure?</h3>
+            <p class="text-gray-500 mb-6">This action cannot be undone. Are you sure you want to cancel this booking?</p>
+            <div class="flex gap-4">
+                <button id="modal-close-btn" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">Keep Booking</button>
+                <button id="modal-confirm-btn" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">Yes, Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cancelModal = document.getElementById('cancel-modal');
+            const cancelBtn = document.getElementById('cancel-booking-btn');
+            const closeBtn = document.getElementById('modal-close-btn');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            const cancelForm = document.getElementById('cancel-booking-form');
+
+            if (cancelModal && cancelBtn && closeBtn && confirmBtn && cancelForm) {
+                cancelBtn.addEventListener('click', () => {
+                    cancelModal.classList.remove('hidden');
+                    cancelModal.classList.add('flex');
+                });
+
+                const closeModal = () => {
+                    cancelModal.classList.add('hidden');
+                    cancelModal.classList.remove('flex');
+                };
+
+                closeBtn.addEventListener('click', closeModal);
+                
+                confirmBtn.addEventListener('click', () => {
+                    cancelForm.submit();
+                });
+
+                window.addEventListener('click', (event) => {
+                    if (event.target === cancelModal) {
+                        closeModal();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
+

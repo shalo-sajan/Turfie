@@ -10,48 +10,17 @@ def user_profile_picture_path(instance, filename):
     return f'profile_pics/user_{instance.id}/{filename}'
 
 class User(AbstractUser):
-    """
-    Custom User model to handle both Player and Turf Owner accounts.
-    """
     USER_TYPE_CHOICES = (
         ('player', 'Player'),
         ('turf_owner', 'Turf Owner'),
     )
-
-    # This is the new field for the profile picture
-    profile_picture = models.ImageField(
-        upload_to='profile_pics/', 
-        null=True, 
-        blank=True, 
-        default='profile_pics/default_avatar.png', # Provide a path to a default image
-        verbose_name='Profile Picture'
-    )
-
-    user_type = models.CharField(
-        max_length=10,
-        choices=USER_TYPE_CHOICES,
-        default='player',
-        verbose_name='Account Type'
-    )
-
-    # Additional fields for Turf Owners
-    business_name = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        verbose_name='Business Name'
-    )
-
-    # Changed from phone_number to phone to match your HTML form
-    phone_number = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        verbose_name='Phone Number'
-    )
-    
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='player')
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    business_name = models.CharField(max_length=100, blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
     favorites = models.ManyToManyField(Turf, related_name='favorited_by', blank=True)
-
+    bio = models.TextField(max_length=500, blank=True) # New bio field
+    
     def __str__(self):
         return self.username
 

@@ -10,13 +10,13 @@ class CustomUserAdmin(BaseUserAdmin): # Use BaseUserAdmin here
 
     # 1. Fieldsets for editing existing users
     fieldsets = BaseUserAdmin.fieldsets + ( # Use BaseUserAdmin.fieldsets
-        ('User Type & Specific Info', {'fields': ('user_type', 'business_name', 'phone_number')}),
+        ('User Type & Specific Info', {'fields': ('user_type', 'business_name', 'phone')}),
     )
 
     # 2. Fieldsets for creating new users (this is often different and critical)
     # UserAdmin has `add_fieldsets` for the "Add user" page.
     add_fieldsets = BaseUserAdmin.add_fieldsets + ( # Use BaseUserAdmin.add_fieldsets
-        ('User Type & Specific Info', {'fields': ('user_type', 'business_name', 'phone_number')}),
+        ('User Type & Specific Info', {'fields': ('user_type', 'business_name', 'phone')}),
     )
 
     # The 'list_display' control which fields are shown in the user list view.

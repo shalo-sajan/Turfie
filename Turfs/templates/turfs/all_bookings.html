@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Bookings - Turfie</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="relative min-h-screen lg:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white border-r border-gray-100 w-72 h-full fixed top-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:flex flex-col">
+            <div class="p-6 border-b border-gray-100">
+                <a href="{% url 'users:dashboard_turf_owner' %}" class="flex items-center gap-3 text-3xl font-bold text-green-600">
+                    <i class="fas fa-futbol"></i>
+                    <span>Turfie</span>
+                </a>
+            </div>
+             <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center gap-4">
+                    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'Users/images/default-avatar.png' %}{% endif %}" alt="User" class="w-12 h-12 rounded-full object-cover">
+                    <div>
+                        <h4 class="font-bold text-gray-800">{{ user.business_name|default:user.username }}</h4>
+                        <p class="text-sm text-gray-500">Turf Owner</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-grow p-4">
+                <ul class="space-y-2">
+                    <li><a href="{% url 'users:dashboard_turf_owner' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-tachometer-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'turfs:all_bookings' %}" class="flex items-center gap-4 py-3 px-4 rounded-xl text-green-700 bg-green-100 font-semibold transition-all duration-300 transform hover:scale-105"><i class="fas fa-calendar-alt w-5 text-center"></i> <span>Bookings</span></a></li>
+                    <li><a href="{% url 'turfs:turf_list' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-map-marked-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>My Turfs</span></a></li>
+                    <li><a href="#" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-wallet w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Payments</span></a></li>
+                    <li><a href="{% url 'users:edit_profile' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-cog w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Settings</span></a></li>
+                    <li class="pt-4 mt-4 border-t border-gray-100"><a href="{% url 'users:logout' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-sign-out-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Logout</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="flex-1 lg:ml-72">
+             <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-30 border-b border-gray-100">
+                 <div class="flex justify-between items-center p-4 sm:p-6 lg:p-8">
+                     <div class="flex items-center gap-4">
+                        <button id="menu-toggle" class="lg:hidden text-gray-600 text-2xl">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-2xl md:text-3xl font-bold">All Bookings</h1>
+                     </div>
+                 </div>
+            </header>
+            
+            <main class="p-4 sm:p-6 lg:p-8">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                    <!-- Filters -->
+                    <form id="filter-form" method="GET">
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6 pb-6 border-b border-gray-200">
+                            <div class="flex-1">
+                                <label for="status-filter" class="block text-sm font-semibold text-gray-700 mb-2">Filter by Status</label>
+                                <select id="status-filter" name="status" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
+                                    <option value="" {% if not request.GET.status %}selected{% endif %}>All Statuses</option>
+                                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="confirmed" {% if request.GET.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                    <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                                    <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                 <label for="date-sort" class="block text-sm font-semibold text-gray-700 mb-2">Sort by Date</label>
+                                <select id="date-sort" name="sort" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
+                                    <option value="desc" {% if request.GET.sort == 'desc' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+                                    <option value="asc" {% if request.GET.sort == 'asc' %}selected{% endif %}>Oldest First</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Bookings Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="text-left text-gray-500">
+                                <tr>
+                                    <th class="p-3 font-semibold">Customer</th>
+                                    <th class="p-3 font-semibold">Turf</th>
+                                    <th class="p-3 font-semibold">Date & Time</th>
+                                    <th class="p-3 font-semibold">Status</th>
+                                    <th class="p-3 font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                <tr class="border-t border-gray-100">
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-3">
+                                            <img src="{% if booking.user.profile_picture %}{{ booking.user.profile_picture.url }}{% else %}{% static 'Users/images/default-avatar.png' %}{% endif %}" alt="User" class="w-10 h-10 rounded-full object-cover">
+                                            <span class="font-semibold text-gray-800">{{ booking.user.username }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3 font-medium text-gray-600">{{ booking.turf.name }}</td>
+                                    <td class="p-3 text-gray-600">{{ booking.start_time|date:"d M, P" }}</td>
+                                    <td class="p-3">
+                                        <span class="py-1.5 px-3 rounded-full font-semibold text-xs
+                                            {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                            {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                            {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
+                                            {% elif booking.status == 'cancelled' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ booking.get_status_display }}
+                                        </span>
+                                    </td>
+                                     <td class="p-3">
+                                        {% if booking.status == 'pending' %}
+                                            <div class="flex items-center gap-2">
+                                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" class="inline-block">
+                                                    {% csrf_token %}
+                                                    <button type="submit" name="action" value="confirm" class="py-1.5 px-3 rounded-md font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors text-xs">Approve</button>
+                                                </form>
+                                                <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" class="inline-block">
+                                                    {% csrf_token %}
+                                                    <button type="submit" name="action" value="reject" class="py-1.5 px-3 rounded-md font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors text-xs">Reject</button>
+                                                </form>
+                                            </div>
+                                        {% else %}
+                                            <a href="{% url 'turfs:booking_detail' booking.id %}" class="py-2 px-4 rounded-lg font-semibold bg-gray-800 text-white hover:bg-gray-900 transition-colors text-xs">View</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center p-10 text-gray-500">
+                                        <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
+                                        <h3 class="font-bold text-lg text-gray-700">No Bookings Found</h3>
+                                        <p class="text-sm">Try adjusting your filters.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+
+            // Filter functionality
+            const filterForm = document.getElementById('filter-form');
+            const statusFilter = document.getElementById('status-filter');
+            const dateSort = document.getElementById('date-sort');
+
+            function submitForm() {
+                filterForm.submit();
+            }
+
+            statusFilter.addEventListener('change', submitForm);
+            dateSort.addEventListener('change', submitForm);
+        });
+    </script>
+</body>
+</html>
+

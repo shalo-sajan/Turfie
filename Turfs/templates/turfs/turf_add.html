@@ -1,96 +1,253 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turfie - Add New Turf</title>
-    <!-- CSS styles from previous version -->
+    <title>Add New Turf - Turfie</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        :root {
-            --primary: #00C853; --primary-dark: #009624; --dark: #212121;
-            --gray: #757575; --light-gray: #E0E0E0; --white: #FFFFFF;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f5f7fa; color: var(--dark); }
-        .header { background: var(--white); box-shadow: var(--shadow-sm); padding: 15px 0; position: sticky; top: 0; z-index: 100; }
-        .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
-        .nav { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
-        .logo i { margin-right: 10px; }
-        .form-container { background: var(--white); padding: 30px 40px; border-radius: 12px; box-shadow: var(--shadow-md); margin-top: 40px; margin-bottom: 40px; }
-        .page-header { margin-bottom: 30px; text-align: center; }
-        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
-        .page-subtitle { color: var(--gray); }
-        .form-group { margin-bottom: 25px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
-        .form-control { width: 100%; padding: 12px 15px; border: 1px solid var(--light-gray); border-radius: 8px; font-size: 16px; transition: var(--transition); }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.2); }
-        textarea.form-control { resize: vertical; min-height: 100px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .amenities-checklist { list-style: none; columns: 2; }
-        .amenities-checklist li { margin-bottom: 10px; }
-        .btn { padding: 12px 25px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
-        .btn-primary { background: var(--primary); color: var(--white); }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-secondary { background-color: var(--light-gray); color: var(--dark); }
-        .btn-secondary:hover { background-color: #ccc; }
-        .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+        /* Custom styles for file input and checkboxes to work with Django forms */
+        .custom-file-input input[type="file"] {
+            display: none;
+        }
+        .amenity-checkbox {
+            display: grid;
+            grid-template-columns: 1em auto;
+            gap: 0.75em;
+            align-items: center;
+        }
+        .amenity-checkbox input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 0.15em solid #cbd5e1; /* slate-300 */
+            border-radius: 0.25em;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+        }
+        .amenity-checkbox input[type="checkbox"]::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #16a34a; /* green-600 */
+            transform-origin: bottom left;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        .amenity-checkbox input[type="checkbox"]:checked {
+            border-color: #16a34a; /* green-600 */
+        }
+        .amenity-checkbox input[type="checkbox"]:checked::before {
+            transform: scale(1);
+        }
     </style>
 </head>
-<body>
-    <header class="header">
-        <div class="container nav">
-            <a href="{% url 'users:dashboard_turf_owner' %}" class="logo"><i class="fas fa-futbol"></i> Turfie</a>
+<body class="text-gray-800 bg-slate-50">
+    <!-- Simplified Header -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-30 border-b border-gray-100">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="{% url 'users:dashboard_turf_owner' %}" class="flex items-center gap-3 text-3xl font-bold text-green-600">
+                    <i class="fas fa-futbol"></i>
+                    <span>Turfie</span>
+                </a>
+                <a href="{% url 'turfs:turf_list' %}" class="flex items-center gap-2 font-semibold text-gray-600 hover:text-green-600 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to My Turfs</span>
+                </a>
+            </div>
         </div>
     </header>
-    <div class="container">
-        <div class="form-container">
-            <div class="page-header">
-                <h1 class="page-title">Add a New Turf</h1>
-                <p class="page-subtitle">Fill in the details to list your turf on the platform.</p>
+            
+    <main class="p-4 sm:p-6 lg:p-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold">Add New Turf</h1>
+                <p class="text-gray-500 mt-2">Fill in the details to list your turf on the platform.</p>
             </div>
-            <form action="{% url 'turfs:turf_add' %}" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.non_field_errors }}
-                <!-- All fields from previous version -->
-                <div class="form-group"><label for="{{ form.name.id_for_label }}">Turf Name</label>{{ form.name }}{{ form.name.errors }}</div>
-                <div class="form-group"><label for="{{ form.description.id_for_label }}">Description</label>{{ form.description }}{{ form.description.errors }}</div>
-                <div class="form-group"><label for="{{ form.address_line_1.id_for_label }}">Address</label>{{ form.address_line_1 }}{{ form.address_line_1.errors }}</div>
-                <div class="form-grid">
-                    <div class="form-group"><label for="{{ form.city.id_for_label }}">City</label>{{ form.city }}{{ form.city.errors }}</div>
-                    <div class="form-group"><label for="{{ form.district.id_for_label }}">District</label>{{ form.district }}{{ form.district.errors }}</div>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group"><label for="{{ form.state.id_for_label }}">State</label>{{ form.state }}{{ form.state.errors }}</div>
-                    <div class="form-group"><label for="{{ form.pincode.id_for_label }}">Pincode</label>{{ form.pincode }}{{ form.pincode.errors }}</div>
-                </div>
-                <div class="form-group"><label for="{{ form.google_maps_link.id_for_label }}">Google Maps Link (Optional)</label>{{ form.google_maps_link }}{{ form.google_maps_link.errors }}</div>
-                
-                <!-- NEW TIME FIELDS -->
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="{{ form.opening_time.id_for_label }}">Opening Time</label>
-                        {{ form.opening_time }}
-                        {{ form.opening_time.errors }}
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                <form action="{% url 'turfs:turf_add' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+                        {{ form.non_field_errors }}
                     </div>
-                    <div class="form-group">
-                        <label for="{{ form.closing_time.id_for_label }}">Closing Time</label>
-                        {{ form.closing_time }}
-                        {{ form.closing_time.errors }}
-                    </div>
-                </div>
+                    {% endif %}
 
-                <div class="form-group"><label for="{{ form.price_per_hour.id_for_label }}">Price per Hour (₹)</label>{{ form.price_per_hour }}{{ form.price_per_hour.errors }}</div>
-                <div class="form-group"><label>Amenities</label><ul class="amenities-checklist">{{ form.amenities }}</ul>{{ form.amenities.errors }}</div>
-                <div class="form-group"><label for="{{ form.main_image.id_for_label }}">Main Image</label>{{ form.main_image }}{{ form.main_image.errors }}</div>
-                <div class="form-actions">
-                    <a href="{% url 'turfs:turf_list' %}" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Turf</button>
-                </div>
-            </form>
+                    <div class="space-y-10">
+                        <!-- Section 1: Basic Details -->
+                        <fieldset>
+                            <legend class="text-base font-semibold leading-7 text-gray-900">Basic Details</legend>
+                            <div class="mt-6 space-y-6">
+                                <div>
+                                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Turf Name</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}<p class="text-red-600 text-xs mt-1">{{ form.name.errors|first }}</p>{% endif %}
+                                </div>
+                                <div>
+                                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                    {{ form.description }}
+                                    {% if form.description.errors %}<p class="text-red-600 text-xs mt-1">{{ form.description.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Section 2: Location -->
+                        <fieldset class="border-t border-gray-200 pt-10">
+                            <legend class="text-base font-semibold leading-7 text-gray-900">Location</legend>
+                            <div class="mt-6 space-y-6">
+                                <div>
+                                    <label for="{{ form.address_line_1.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                                    {{ form.address_line_1 }}
+                                    {% if form.address_line_1.errors %}<p class="text-red-600 text-xs mt-1">{{ form.address_line_1.errors|first }}</p>{% endif %}
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="{{ form.city.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">City</label>
+                                        {{ form.city }}
+                                        {% if form.city.errors %}<p class="text-red-600 text-xs mt-1">{{ form.city.errors|first }}</p>{% endif %}
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.district.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">District</label>
+                                        {{ form.district }}
+                                        {% if form.district.errors %}<p class="text-red-600 text-xs mt-1">{{ form.district.errors|first }}</p>{% endif %}
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.state.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">State</label>
+                                        {{ form.state }}
+                                        {% if form.state.errors %}<p class="text-red-600 text-xs mt-1">{{ form.state.errors|first }}</p>{% endif %}
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.pincode.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Pincode</label>
+                                        {{ form.pincode }}
+                                        {% if form.pincode.errors %}<p class="text-red-600 text-xs mt-1">{{ form.pincode.errors|first }}</p>{% endif %}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="{{ form.google_maps_link.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Google Maps Link (Optional)</label>
+                                    {{ form.google_maps_link }}
+                                    {% if form.google_maps_link.errors %}<p class="text-red-600 text-xs mt-1">{{ form.google_maps_link.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Section 3: Pricing & Hours -->
+                        <fieldset class="border-t border-gray-200 pt-10">
+                            <legend class="text-base font-semibold leading-7 text-gray-900">Pricing & Hours</legend>
+                            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="{{ form.opening_time.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Opening Time</label>
+                                    {{ form.opening_time }}
+                                    {% if form.opening_time.errors %}<p class="text-red-600 text-xs mt-1">{{ form.opening_time.errors|first }}</p>{% endif %}
+                                </div>
+                                <div>
+                                    <label for="{{ form.closing_time.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Closing Time</label>
+                                    {{ form.closing_time }}
+                                    {% if form.closing_time.errors %}<p class="text-red-600 text-xs mt-1">{{ form.closing_time.errors|first }}</p>{% endif %}
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label for="{{ form.price_per_hour.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Price per Hour (₹)</label>
+                                    {{ form.price_per_hour }}
+                                    {% if form.price_per_hour.errors %}<p class="text-red-600 text-xs mt-1">{{ form.price_per_hour.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Section 4: Amenities & Photos -->
+                        <fieldset class="border-t border-gray-200 pt-10">
+                            <legend class="text-base font-semibold leading-7 text-gray-900">Facilities & Photos</legend>
+                             <div class="mt-6 space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Amenities</label>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border border-gray-200 rounded-lg">
+                                        {% for checkbox in form.amenities %}
+                                        <label for="{{ checkbox.id_for_label }}" class="amenity-checkbox text-gray-700">{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+                                        {% endfor %}
+                                    </div>
+                                    {% if form.amenities.errors %}<p class="text-red-600 text-xs mt-1">{{ form.amenities.errors|first }}</p>{% endif %}
+                                </div>
+                                <div>
+                                   <label for="{{ form.main_image.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Main Image</label>
+                                   <div class="mt-2 flex items-center gap-6">
+                                       <img id="image-preview" src="https://placehold.co/128x128/f0fdf4/16a34a?text=Preview" class="w-32 h-32 rounded-xl object-cover border-2 border-gray-200" alt="Image preview">
+                                       <label for="{{ form.main_image.id_for_label }}" class="custom-file-input cursor-pointer py-2.5 px-5 rounded-lg font-semibold bg-gray-800 text-white hover:bg-gray-900 transition-colors">
+                                           <span>Upload Image</span>
+                                           {{ form.main_image }}
+                                       </label>
+                                   </div>
+                                    {% if form.main_image.errors %}<p class="text-red-600 text-xs mt-1">{{ form.main_image.errors|first }}</p>{% endif %}
+                                </div>
+                             </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="form-actions flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+                        <a href="{% url 'turfs:turf_list' %}" class="py-2.5 px-6 rounded-lg font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">Cancel</a>
+                        <button type="submit" class="py-2.5 px-6 rounded-lg font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors flex items-center gap-2">
+                            <i class="fas fa-save"></i> Save Turf
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Image preview script
+            const imageInput = document.getElementById('{{ form.main_image.id_for_label }}');
+            const imagePreview = document.getElementById('image-preview');
+            if (imageInput && imagePreview) {
+                imageInput.addEventListener('change', function(event) {
+                    if (event.target.files && event.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imagePreview.src = e.target.result;
+                        }
+                        reader.readAsDataURL(event.target.files[0]);
+                    }
+                });
+            }
+
+            // This script applies Tailwind classes to all form fields
+            const formFields = document.querySelectorAll(
+                'form input[type="text"], form input[type="email"], form input[type="number"], form input[type="url"], form input[type="time"], form textarea'
+            );
+            const fieldClasses = [
+                'w-full', 'p-3', 'border', 'border-gray-300', 'rounded-lg', 
+                'focus:ring-2', 'focus:ring-green-500', 'focus:border-green-500', 
+                'transition-all', 'text-base', 'bg-slate-50'
+            ];
+            formFields.forEach(field => {
+                field.classList.add(...fieldClasses);
+            });
+        });
+    </script>
 </body>
 </html>
+

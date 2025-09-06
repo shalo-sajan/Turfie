@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Turfie</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="relative min-h-screen lg:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white border-r border-gray-100 w-72 h-full fixed top-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:flex flex-col">
+            <div class="p-6 border-b border-gray-100">
+                <a href="{% url 'users:dashboard_turf_owner' %}" class="flex items-center gap-3 text-3xl font-bold text-green-600">
+                    <i class="fas fa-futbol"></i>
+                    <span>Turfie</span>
+                </a>
+            </div>
+             <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center gap-4">
+                    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'Users/images/default-avatar.png' %}{% endif %}" alt="User" class="w-12 h-12 rounded-full object-cover">
+                    <div>
+                        <h4 class="font-bold text-gray-800">{{ user.business_name|default:user.username }}</h4>
+                        <p class="text-sm text-gray-500">Turf Owner</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-grow p-4">
+                <ul class="space-y-2">
+                    <li><a href="{% url 'users:dashboard_turf_owner' %}" class="flex items-center gap-4 py-3 px-4 rounded-xl text-green-700 bg-green-100 font-semibold transition-all duration-300 transform hover:scale-105"><i class="fas fa-tachometer-alt w-5 text-center"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'turfs:all_bookings' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-calendar-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Bookings</span></a></li>
+                    <li><a href="{% url 'turfs:turf_list' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-map-marked-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>My Turfs</span></a></li>
+                    <li><a href="#" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-wallet w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Payments</span></a></li>
+                    <li><a href="{% url 'users:edit_profile' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-cog w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Settings</span></a></li>
+                    <li class="pt-4 mt-4 border-t border-gray-100"><a href="{% url 'users:logout' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-sign-out-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Logout</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="flex-1 lg:ml-72">
+             <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-30 border-b border-gray-100">
+                 <div class="flex justify-between items-center p-4 sm:p-6 lg:p-8">
+                     <div class="flex items-center gap-4">
+                        <button id="menu-toggle" class="lg:hidden text-gray-600 text-2xl">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold">Owner Dashboard</h1>
+                            <p class="text-gray-500 text-sm mt-1">Welcome back, {{ user.first_name|default:user.username }}!</p>
+                        </div>
+                     </div>
+                     
+                    <div class="hidden sm:flex items-center gap-4">
+                        <a href="{% url 'turfs:turf_add' %}" class="py-2.5 px-5 rounded-lg font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors flex items-center gap-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Add New Turf</span>
+                        </a>
+                    </div>
+                 </div>
+            </header>
+            
+            <main class="p-4 sm:p-6 lg:p-8">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card bg-white p-6 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-gray-500">Total Bookings</span>
+                            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600 text-lg"><i class="fas fa-calendar-check"></i></div>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900">{{ stats.total_bookings }}</div>
+                    </div>
+                    <div class="stat-card bg-white p-6 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-gray-500">Total Revenue</span>
+                            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-100 text-green-600 text-lg"><i class="fas fa-rupee-sign"></i></div>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900">₹{{ stats.total_revenue|floatformat:0 }}</div>
+                    </div>
+                    <div class="stat-card bg-white p-6 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-gray-500">Your Turfs</span>
+                            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-orange-100 text-orange-600 text-lg"><i class="fas fa-map-marked-alt"></i></div>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900">{{ user.turf_set.count }}</div>
+                    </div>
+                    <div class="stat-card bg-white p-6 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-gray-500">Average Rating</span>
+                            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-100 text-purple-600 text-lg"><i class="fas fa-star"></i></div>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900">{{ stats.avg_rating|floatformat:1 }}</div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Recent Bookings Table -->
+                    <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-800">Recent Bookings</h2>
+                            <a href="{% url 'turfs:all_bookings' %}" class="text-green-600 font-semibold hover:underline text-sm">View All</a>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="text-left text-gray-500">
+                                    <tr>
+                                        <th class="p-3 font-semibold">Customer</th>
+                                        <th class="p-3 font-semibold">Turf</th>
+                                        <th class="p-3 font-semibold">Date & Time</th>
+                                        <th class="p-3 font-semibold">Status</th>
+                                        <th class="p-3 font-semibold">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in recent_bookings %}
+                                    <tr class="border-t border-gray-100">
+                                        <td class="p-3">
+                                            <div class="flex items-center gap-3">
+                                                <img src="{% if booking.user.profile_picture %}{{ booking.user.profile_picture.url }}{% else %}{% static 'Users/images/default-avatar.png' %}{% endif %}" alt="User" class="w-10 h-10 rounded-full object-cover">
+                                                <span class="font-semibold text-gray-800">{{ booking.user.username }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-3 font-medium text-gray-600">{{ booking.turf.name }}</td>
+                                        <td class="p-3 text-gray-600">{{ booking.start_time|date:"d M, P" }}</td>
+                                        <td class="p-3">
+                                            <span class="py-1.5 px-3 rounded-full font-semibold text-xs
+                                                {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                                {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                                {{ booking.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="p-3">
+                                            {% if booking.status == 'pending' %}
+                                                <div class="flex items-center gap-2">
+                                                    <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" class="inline-block">
+                                                        {% csrf_token %}
+                                                        <button type="submit" name="action" value="confirm" class="py-1.5 px-3 rounded-md font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors text-xs">Approve</button>
+                                                    </form>
+                                                    <form action="{% url 'turfs:manage_booking' booking.id %}" method="POST" class="inline-block">
+                                                        {% csrf_token %}
+                                                        <button type="submit" name="action" value="reject" class="py-1.5 px-3 rounded-md font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors text-xs">Reject</button>
+                                                    </form>
+                                                </div>
+                                            {% else %}
+                                                <a href="{% url 'turfs:booking_detail' booking.id %}" class="py-2 px-4 rounded-lg font-semibold bg-gray-800 text-white hover:bg-gray-900 transition-colors text-xs">View</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr class="border-t border-gray-100">
+                                        <td colspan="5" class="text-center p-6 text-gray-500">You have no recent bookings.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Today's Schedule -->
+                    <div class="lg:col-span-1 bg-white p-6 sm:p-8 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Today's Schedule</h2>
+                        <ul class="space-y-4">
+                            {% for booking in todays_bookings %}
+                            <li class="p-4 rounded-lg bg-green-50 border border-green-200">
+                                <p class="font-bold text-green-800">
+                                    <i class="fas fa-clock mr-2"></i>{{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}
+                                </p>
+                                <p class="text-sm text-gray-600 mt-1"><strong class="text-gray-800">{{ booking.turf.name }}</strong> booked by <strong class="text-gray-800">{{ booking.user.username }}</strong></p>
+                            </li>
+                            {% empty %}
+                            <li class="text-center p-6 text-gray-500">No bookings scheduled for today.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

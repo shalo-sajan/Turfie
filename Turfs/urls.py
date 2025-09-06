@@ -16,4 +16,7 @@ urlpatterns = [
         # --- Player-Facing Views ---
     path('search/', views.turf_search_view, name='turf_search'),
     path('<int:turf_id>/', views.turf_detail_view, name='turf_detail'),
+    
+        #owner-specific pages
+    path('all-bookings/', views.all_bookings, name='all_bookings'),
 ]

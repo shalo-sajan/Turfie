@@ -15,6 +15,7 @@ from django.db.models import Q
 import qrcode
 import io
 import base64
+from Users.decorators import turf_owner_required
 
 # --- NEW BOOKING MANAGEMENT VIEW ---
 try:
@@ -286,3 +287,35 @@ def turf_search_view(request):
         'sort_by': sort_by or "",
     }
     return render(request, 'turfs/turf_search.html', context)
+
+@login_required
+@turf_owner_required 
+def all_bookings(request):
+    """
+    Displays a filterable and sortable list of all bookings 
+    for the turf owner's turfs.
+    """
+    # Initial queryset for all bookings related to the owner's turfs
+    bookings = Booking.objects.filter(turf__owner=request.user).select_related('user', 'turf')
+
+    # Get filter and sort parameters from the URL
+    status_filter = request.GET.get('status', '')
+    sort_order = request.GET.get('sort', 'desc')
+
+    # Apply status filter if a valid status is provided
+    if status_filter in ['pending', 'confirmed', 'completed', 'cancelled']:
+        bookings = bookings.filter(status=status_filter)
+
+    # Apply sorting
+    if sort_order == 'asc':
+        bookings = bookings.order_by('start_time')
+    else:
+        # Default to descending order (newest first)
+        bookings = bookings.order_by('-start_time')
+
+    context = {
+        'bookings': bookings,
+    }
+    return render(request, 'turfs/all_bookings.html', context)
+
+

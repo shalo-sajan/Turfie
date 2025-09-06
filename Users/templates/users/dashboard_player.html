@@ -1,0 +1,324 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turfie - Player Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Swiper.js CSS for Carousels -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .swiper-button-next, .swiper-button-prev {
+            color: #16a34a; /* green-600 */
+            background-color: white;
+            border-radius: 9999px;
+            width: 44px;
+            height: 44px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .swiper-button-next:hover, .swiper-button-prev:hover {
+            background-color: #f0fdf4; /* green-50 */
+            color: #15803d; /* green-700 */
+        }
+        .swiper-button-next::after, .swiper-button-prev::after {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        }
+        .notification-badge-pulse {
+            animation: pulse-animation 2s infinite;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="relative min-h-screen lg:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white border-r border-gray-100 w-72 h-full fixed top-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:flex flex-col">
+            <div class="p-6 border-b border-gray-100">
+                <a href="{% url 'users:dashboard_player' %}" class="flex items-center gap-3 text-3xl font-bold text-green-600">
+                    <i class="fas fa-futbol"></i>
+                    <span>Turfie</span>
+                </a>
+            </div>
+            <nav class="flex-grow p-4">
+                <ul class="space-y-2">
+                    <li><a href="{% url 'users:dashboard_player' %}" class="flex items-center gap-4 py-3 px-4 rounded-xl text-green-700 bg-green-100 font-semibold transition-all duration-300 transform hover:scale-105"><i class="fas fa-home w-5 text-center"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'users:my_bookings' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-calendar-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>My Bookings</span></a></li>
+                    <li><a href="{% url 'turfs:turf_search' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-search w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Find Turfs</span></a></li>
+                    <li><a href="{% url 'users:favorites' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-heart w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Favorites</span></a></li>
+                    <li><a href="#" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-wallet w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Payments</span></a></li>
+                    <li><a href="{% url 'users:edit_profile' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-cog w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Settings</span></a></li>
+                    <li><a href="{% url 'users:logout' %}" class="group flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors"><i class="fas fa-sign-out-alt w-5 text-center text-gray-400 group-hover:text-green-600"></i> <span>Logout</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="flex-1 lg:ml-72 overflow-hidden">
+            <main class="p-4 sm:p-6 lg:p-8">
+                <!-- Header / Welcome Banner -->
+                <section class="relative bg-gradient-to-br from-green-500 to-green-700 text-white rounded-2xl shadow-lg p-6 mb-8 flex justify-between items-center overflow-hidden">
+                    <div class="absolute -top-10 -left-10 w-48 h-48 bg-white/10 rounded-full"></div>
+                    <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-white/10 rounded-full"></div>
+                    <div class="z-10">
+                        <h1 class="text-2xl md:text-3xl font-bold">Welcome back, {{ user.first_name|default:user.username }}!</h1>
+                        <p class="text-green-100 mt-1">Ready for your next game? Find the perfect turf now.</p>
+                    </div>
+                    <div class="flex items-center gap-4 z-10">
+                        <button id="menu-toggle" class="lg:hidden text-white text-2xl">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="hidden sm:flex items-center gap-4">
+                            <button class="relative w-12 h-12 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors" aria-label="View notifications">
+                                <i class="fas fa-bell"></i>
+                                {% if notification_count > 0 %}<span class="absolute top-0 right-0 flex items-center justify-center w-6 h-6 bg-orange-500 text-white text-xs font-bold rounded-full border-2 border-green-700 notification-badge-pulse">{{ notification_count }}</span>{% endif %}
+                            </button>
+                            <a href="{% url 'users:edit_profile' %}" class="flex items-center gap-3 p-2 pr-4 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300">
+                                <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'Users/images/default-avatar.png' %}{% endif %}" alt="{{ user.username }}'s avatar" class="w-9 h-9 rounded-full object-cover border-2 border-white/50">
+                                <span class="font-semibold">{{ user.username }}</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Upcoming Bookings Section -->
+                <section class="mb-12">
+                    <div class="flex justify-between items-center mb-6 border-l-4 border-green-500 pl-4">
+                        <h2 class="text-2xl font-bold">Upcoming Bookings</h2>
+                        <a href="{% url 'users:my_bookings' %}" class="text-green-600 font-semibold hover:underline">View All</a>
+                    </div>
+                    <div class="swiper" id="bookings-carousel">
+                        <div class="swiper-wrapper pb-14">
+                            {% for booking in upcoming_bookings %}
+                            <div class="swiper-slide !w-[350px]">
+                                <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-gray-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100">
+                                    <div class="flex justify-between items-center p-5">
+                                        <span class="text-sm font-semibold text-gray-500">#BK-{{ booking.id }}</span>
+                                        <span class="text-xs font-bold py-1.5 px-3.5 rounded-full 
+                                            {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                            {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                            {% else %}bg-red-100 text-red-800{% endif %}">
+                                            {{ booking.get_status_display|upper }}
+                                        </span>
+                                    </div>
+                                    <div class="p-5 pt-0 flex-grow">
+                                        <h3 class="text-xl font-bold mb-2 text-gray-900">{{ booking.turf.name }}</h3>
+                                        <p class="text-gray-500 text-sm mb-4 line-clamp-2 min-h-[2.5rem]">{{ booking.turf.description|truncatewords:10 }}</p>
+                                        <div class="flex items-center gap-2 text-gray-700 font-medium bg-green-50 p-3 rounded-lg">
+                                            <i class="fas fa-calendar-day text-green-600"></i>
+                                            <span>{{ booking.start_time|date:"D, M d" }}, {{ booking.start_time|time:"P" }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-3 p-5 border-t border-gray-100">
+                                        <a href="{% url 'turfs:booking_detail' booking.id %}" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold bg-green-600 text-white hover:bg-green-700 transition-all transform hover:scale-105 shadow-sm hover:shadow-lg">View Details</a>
+                                        <button class="flex-1 text-center py-3 px-4 rounded-xl font-semibold border border-red-200 text-red-600 hover:bg-red-50 transition-colors cancel-btn" data-booking-id="{{ booking.id }}" {% if booking.status == 'cancelled' %}disabled{% endif %}>
+                                            {% if booking.status == 'cancelled' %}Cancelled{% else %}Cancel{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="swiper-slide !w-full">
+                                <div class="text-center p-10 text-gray-500 bg-white border-2 border-dashed border-gray-300 rounded-2xl">
+                                    <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
+                                    <h3 class="font-bold text-lg text-gray-700">No Upcoming Games</h3>
+                                    <p class="text-sm">Time to book a new turf and get playing!</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                </section>
+
+                <!-- Recommended Turfs Section -->
+                <section>
+                    <div class="flex justify-between items-center mb-6 border-l-4 border-green-500 pl-4">
+                        <h2 class="text-2xl font-bold">Recommended Turfs</h2>
+                        <a href="{% url 'turfs:turf_search' %}" class="text-green-600 font-semibold hover:underline">Explore More</a>
+                    </div>
+                    <div class="swiper" id="turfs-carousel">
+                        <div class="swiper-wrapper pb-14">
+                            {% for turf in recommended_turfs %}
+                            <div class="swiper-slide !w-[350px]">
+                                <div class="turf-card bg-white rounded-2xl shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-gray-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100" data-turf-id="{{ turf.id }}">
+                                    <div class="relative">
+                                        <img src="{{ turf.main_image.url }}" alt="{{ turf.name }}" class="h-48 w-full object-cover">
+                                        <div class="absolute top-3 right-3 bg-white/80 backdrop-blur-sm text-orange-500 font-bold px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                                            <i class="fas fa-star"></i> <span>{{ turf.rating|floatformat:1 }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-5 flex-grow flex flex-col">
+                                        <h3 class="text-xl font-bold mb-2 text-gray-900 min-h-[3.5rem] line-clamp-2">{{ turf.name }}</h3>
+                                        <p class="flex items-center gap-2 text-gray-500 text-sm mb-4"><i class="fas fa-map-marker-alt"></i> <span>{{ turf.city }}, {{ turf.district }}</span></p>
+                                        <p class="mt-auto pt-4 text-2xl font-extrabold text-gray-900"><strong>₹{{ turf.price_per_hour|floatformat:0 }}</strong><span class="text-sm font-medium text-gray-500">/hour</span></p>
+                                        <div class="flex justify-between items-center gap-4 mt-4">
+                                            <a href="{% url 'turfs:turf_detail' turf.id %}" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold bg-green-600 text-white hover:bg-green-700 transition-all transform hover:scale-105 shadow-sm hover:shadow-lg">Book Now</a>
+                                            <button class="btn-favorite w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border-2 border-gray-200 text-gray-400 hover:border-red-500 hover:bg-red-50 transition-colors" aria-label="Toggle favorite">
+                                                <i class="{% if turf in user.favorites.all %}fas text-red-500{% else %}far{% endif %} fa-heart text-xl"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Cancellation Modal -->
+    <div id="cancel-modal" class="fixed inset-0 w-full h-full bg-black/60 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl text-center max-w-sm w-full shadow-xl transform transition-all scale-95 opacity-0" id="modal-content">
+            <h3 class="text-2xl font-bold mb-2">Cancel Booking?</h3>
+            <p class="text-gray-500 mb-6">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            <div class="flex gap-4">
+                <button id="modal-close-btn" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">Keep Booking</button>
+                <button id="modal-confirm-btn" class="flex-1 text-center py-3 px-4 rounded-xl font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">Yes, Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    {% for booking in upcoming_bookings %}
+    <form id="cancel-form-{{ booking.id }}" action="{% url 'turfs:manage_booking' booking.id %}" method="POST" class="hidden">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="cancel">
+    </form>
+    {% endfor %}
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.querySelector('main');
+            const cancelModal = document.getElementById('cancel-modal');
+            const modalContent = document.getElementById('modal-content');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+
+            let bookingIdToCancel = null;
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+
+            if (mainContent) {
+                mainContent.addEventListener('click', (event) => {
+                    const favoriteButton = event.target.closest('.btn-favorite');
+                    const cancelButton = event.target.closest('.cancel-btn');
+
+                    if (favoriteButton) {
+                        event.preventDefault();
+                        const turfId = favoriteButton.closest('.turf-card').dataset.turfId;
+                        
+                        fetch(`/users/toggle-favorite/${turfId}/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const icon = favoriteButton.querySelector('.fa-heart');
+                            icon.classList.toggle('fas', data.is_favorite);
+                            icon.classList.toggle('far', !data.is_favorite);
+                            icon.classList.toggle('text-red-500', data.is_favorite);
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                    
+                    if (cancelButton) {
+                        bookingIdToCancel = cancelButton.dataset.bookingId;
+                        cancelModal.classList.remove('hidden');
+                        cancelModal.classList.add('flex');
+                        setTimeout(() => {
+                            modalContent.classList.remove('scale-95', 'opacity-0');
+                        }, 50);
+                    }
+                });
+            }
+
+            if (cancelModal) {
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+                const closeBtn = document.getElementById('modal-close-btn');
+
+                const closeModal = () => {
+                    modalContent.classList.add('scale-95', 'opacity-0');
+                    setTimeout(() => {
+                        cancelModal.classList.add('hidden');
+                        cancelModal.classList.remove('flex');
+                    }, 200);
+                };
+
+                closeBtn.addEventListener('click', closeModal);
+                
+                confirmBtn.addEventListener('click', () => {
+                    if (bookingIdToCancel) {
+                        const form = document.getElementById(`cancel-form-${bookingIdToCancel}`);
+                        if (form) form.submit();
+                    }
+                });
+
+                window.addEventListener('click', (event) => {
+                    if (event.target === cancelModal) closeModal();
+                });
+            }
+
+            const swiperConfig = {
+                slidesPerView: 'auto',
+                spaceBetween: 25,
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+            };
+            
+            new Swiper('#bookings-carousel', swiperConfig);
+            new Swiper('#turfs-carousel', swiperConfig);
+        });
+    </script>
+</body>
+</html>
+
